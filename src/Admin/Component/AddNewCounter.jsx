@@ -16,6 +16,7 @@ import {
     CheckCircle2,
 } from 'lucide-react';
 import axios from 'axios';
+import useAllCountar from '../Hooks/useAllCountar';
 
 const AddNewCounter = () => {
     const [counterName, setCounterName] = useState('');
@@ -28,6 +29,7 @@ const AddNewCounter = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { refetch } = useAllCountar();
 
     const startDate = new Date();
 
@@ -74,6 +76,7 @@ const AddNewCounter = () => {
             toast.success('কাউন্টার সফলভাবে যোগ করা হয়েছে!', {
                 icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
             });
+            refetch();
 
             // Reset form
             setCounterName('');
