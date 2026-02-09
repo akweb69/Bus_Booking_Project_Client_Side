@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     LayoutDashboard,
     Users,
@@ -9,20 +9,37 @@ import {
     ChevronLeft,
     ChevronRight,
     Menu
-} from 'lucide-react'; // ← or use any icon library you prefer
+} from 'lucide-react';
 
-import './AdminAsideBar.css'; // we'll create this next
+import './AdminAsideBar.css';
 
 const AdminAsideBar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [activePath, setActivePath] = useState(window.location.pathname);
+
+    // Update active path when navigation happens (for plain <a> links)
+    useEffect(() => {
+        const handleLocationChange = () => {
+            setActivePath(window.location.pathname);
+        };
+
+        window.addEventListener('popstate', handleLocationChange);
+        // Also check once on mount
+        handleLocationChange();
+
+        return () => {
+            window.removeEventListener('popstate', handleLocationChange);
+        };
+    }, []);
 
     const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
-        { icon: Users, label: 'Users', href: '/admin/users' },
-        { icon: ShoppingBag, label: 'Orders', href: '/admin/orders' },
-        { icon: Package, label: 'Products', href: '/admin/products' },
-        { icon: Settings, label: 'Settings', href: '/admin/settings' },
+        { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', href: '/admin' },
+        { icon: Users, label: 'কাউন্টার ম্যানেজ', href: '/admin/counter_managment' },
+        { icon: ShoppingBag, label: 'অ্যাডমিন ম্যানেজ', href: '/admin/admin_managment' },
+        { icon: Package, label: 'রুট ম্যানেজ', href: '/admin/route_managment' },
+        { icon: Settings, label: 'বাস ম্যানেজ', href: '/admin/bus_managment' },
+        { icon: Settings, label: 'বুকিং ম্যানেজ', href: '/admin/booking_managment' },
     ];
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
@@ -30,7 +47,7 @@ const AdminAsideBar = () => {
 
     return (
         <>
-            {/* Mobile hamburger button */}
+            {/* Mobile hamburger */}
             <button
                 className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-md"
                 onClick={toggleMobile}
@@ -54,17 +71,16 @@ const AdminAsideBar = () => {
           flex flex-col h-screen
         `}
             >
-                {/* Header / Logo area */}
-                <div className="p-4 border-b border-gray-800 flex items-center justify">
+                {/* Header */}
+                <div className="p-4 border-b border-gray-800 flex items-center justify-between">
                     {!isCollapsed && (
-                        <h1 className="text-xl font-bold ">Admin Panel</h1>
+                        <h1 className="text-xl font-bold">অ্যাডমিন পানেল</h1>
                     )}
 
-                    {/* Collapse button - desktop only */}
                     <button
                         onClick={toggleSidebar}
                         className="hidden lg:block p-1.5 rounded hover:bg-gray-800"
-                        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        aria-label={isCollapsed ? "Expand" : "Collapse"}
                     >
                         {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                     </button>
@@ -73,25 +89,32 @@ const AdminAsideBar = () => {
                 {/* Navigation */}
                 <nav className="flex-1 px-3 py-6 overflow-y-auto">
                     <ul className="space-y-1">
-                        {menuItems.map((item, index) => (
-                            <li key={index}>
-                                <a
-                                    href={item.href}
-                                    className={`
-                    flex items-center gap-3 px-3 py-3 rounded-lg
-                    hover:bg-gray-800 transition-colors
-                    ${isCollapsed ? 'justify-center' : ''}
-                  `}
-                                >
-                                    <item.icon size={22} />
-                                    {!isCollapsed && <span>{item.label}</span>}
-                                </a>
-                            </li>
-                        ))}
+                        {menuItems.map((item, index) => {
+                            const isActive = activePath === item.href;
+
+                            return (
+                                <li key={index}>
+                                    <a
+                                        href={item.href}
+                                        className={`
+                      flex items-center gap-3 px-3 py-3 rounded-lg
+                      transition-colors
+                      ${isActive
+                                                ? 'bg-gray-700 text-white font-medium'
+                                                : 'hover:bg-gray-800 text-gray-300'}
+                      ${isCollapsed ? 'justify-center' : ''}
+                    `}
+                                    >
+                                        <item.icon size={22} />
+                                        {!isCollapsed && <span>{item.label}</span>}
+                                    </a>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </nav>
 
-                {/* Footer / Logout */}
+                {/* Logout */}
                 <div className="p-4 border-t border-gray-800">
                     <a
                         href="/logout"
@@ -107,7 +130,7 @@ const AdminAsideBar = () => {
                 </div>
             </aside>
 
-            {/* Mobile overlay backdrop */}
+            {/* Mobile backdrop */}
             {isMobileOpen && (
                 <div
                     className="fixed inset-0 bg-black/60 z-30 lg:hidden"
