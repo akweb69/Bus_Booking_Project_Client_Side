@@ -1,11 +1,11 @@
 import React from 'react';
+import DigitalWatch from '../Component/DigitalWatch';
 
 const AdminDash = () => {
-    const date = new Date();
-    const today = date.toISOString().split("T")[0];
+
     return (
         <div className=' w-full'>
-            Date:  {today}
+            <DigitalWatch />
         </div>
     );
 };

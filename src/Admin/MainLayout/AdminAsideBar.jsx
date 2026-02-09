@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import './AdminAsideBar.css';
+import { Link } from 'react-router-dom';
 
 const AdminAsideBar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -94,8 +95,8 @@ const AdminAsideBar = () => {
 
                             return (
                                 <li key={index}>
-                                    <a
-                                        href={item.href}
+                                    <Link
+                                        to={item.href}
                                         className={`
                       flex items-center gap-3 px-3 py-3 rounded-lg
                       transition-colors
@@ -107,7 +108,7 @@ const AdminAsideBar = () => {
                                     >
                                         <item.icon size={22} />
                                         {!isCollapsed && <span>{item.label}</span>}
-                                    </a>
+                                    </Link>
                                 </li>
                             );
                         })}
