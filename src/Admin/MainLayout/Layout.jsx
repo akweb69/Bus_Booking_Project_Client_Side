@@ -11,7 +11,7 @@ const AdminLayout = () => {
             <AdminAsideBar />
 
             {/* Main content wrapper */}
-            <div className="flex-1  min-h-screen">
+            <div className="flex-1  h-screen overflow-y-auto">
                 <Outlet />
             </div>
         </div>
