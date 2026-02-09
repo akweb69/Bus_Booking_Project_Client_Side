@@ -1,0 +1,23 @@
+/* Optional: smooth scrollbar */
+aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Optional: active link style example */
+a[href="/admin"] {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: rgb(59, 130, 246);
+}
