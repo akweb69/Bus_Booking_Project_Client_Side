@@ -13,11 +13,13 @@ import {
 
 import './AdminAsideBar.css';
 import { Link } from 'react-router-dom';
+import { useApp } from '@/context/AppContext';
 
 const AdminAsideBar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [activePath, setActivePath] = useState(window.location.pathname);
+    const { logout } = useApp()
 
     // Update active path when navigation happens (for plain <a> links)
     useEffect(() => {
@@ -116,18 +118,18 @@ const AdminAsideBar = () => {
                 </nav>
 
                 {/* Logout */}
-                <div className="p-4 border-t border-gray-800">
-                    <a
-                        href="/logout"
+                <div className="p-4 border-t border-gray-800 ">
+                    <div
+                        onClick={() => logout()}
                         className={`
-              flex items-center gap-3 px-3 py-3 rounded-lg
+              flex items-center gap-3 cursor-pointer px-3 py-3  rounded-lg
               hover:bg-red-900/30 text-red-400 transition-colors
               ${isCollapsed ? 'justify-center' : ''}
             `}
                     >
                         <LogOut size={22} />
                         {!isCollapsed && <span>Logout</span>}
-                    </a>
+                    </div>
                 </div>
             </aside>
 

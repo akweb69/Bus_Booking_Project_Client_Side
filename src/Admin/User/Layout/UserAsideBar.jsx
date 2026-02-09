@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     LayoutDashboard, User, CreditCard, History, Heart, Settings, LogOut,
     ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
 
 const UserAsideBar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const { logout } = useApp()
 
     const menuItems = [
         { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', href: '/dashboard' },
@@ -71,8 +73,8 @@ const UserAsideBar = () => {
 
                 {/* Logout */}
                 <div className="p-4 border-t">
-                    <a
-                        href="/logout"
+                    <div
+                        onClick={() => logout()}
                         className={`
               flex items-center gap-3 px-4 py-3 rounded-lg text-red-600
               hover:bg-red-50 transition-colors
@@ -81,7 +83,7 @@ const UserAsideBar = () => {
                     >
                         <LogOut size={22} />
                         {!isCollapsed && <span>লগআউট</span>}
-                    </a>
+                    </div>
                 </div>
             </aside>
 

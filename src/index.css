@@ -121,3 +121,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+html {
+  max-width: 1650px;
+  margin: 0 auto;
+}

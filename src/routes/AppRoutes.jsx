@@ -10,6 +10,7 @@ import UserDash from "@/Admin/User/Layout/UserDash";
 import SignIn from "@/Pages/SignIn";
 import SignUp from "@/Pages/SignUp";
 import Manage_Counter_Id from "@/Admin/Pages/Manage_Counter_Id";
+import NewAdminLayout from "@/Admin/MainLayout/NewAdminLayout";
 
 const AppRoutes = () => {
     return (
@@ -22,11 +23,13 @@ const AppRoutes = () => {
             </Route>
 
             {/* admin routes */}
-            <Route element={<Layout />}>
+            {/* <Route element={<Layout />}>
                 <Route path="/admin" element={<AdminDash />} />
                 <Route path="/admin/counter_managment" element={<Manage_Counter_Id />} />
 
-            </Route>
+            </Route> */}
+            <Route path="/admin" element={<NewAdminLayout />} />
+
             {/* user Dashboard routes */}
             <Route element={<UserLayout />}>
                 <Route path="/dashboard" element={<UserDash />} />

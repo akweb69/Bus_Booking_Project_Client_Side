@@ -6,6 +6,8 @@ import bg4 from "../assets/heroBg/bg4.jpg";
 import bg5 from "../assets/heroBg/bg5.jpg";
 import toast from "react-hot-toast";
 import { Eye, EyeOffIcon } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const images = [bg1, bg4, bg5];
 
@@ -14,6 +16,9 @@ const Hero = () => {
     const [counterCode, setCounterCode] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const base_url = import.meta.env.VITE_BASE_URL
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
 
     useEffect(() => {
@@ -26,8 +31,50 @@ const Hero = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(counterCode, password);
-        toast.success('Login successful');
+        toast.loading('কাউন্টার কোড যাচাই করা হচ্ছে...');
+
+        if (!counterCode || !password) {
+            toast.dismiss();
+            toast.error('সবগুলো ফিল্ড পূরণ করুন!');
+            return;
+        }
+        // check user exits----->
+        const res0 = await axios.get(`${base_url}/user/check/${counterCode}`)
+        if (res0.status === 200) {
+            // check password------>
+            const data = res0.data
+            const dbPassword = data?.password
+            const status = data?.status
+            const role = data?.role
+
+            if (dbPassword === password && status === 'active' && role === 'counter') {
+                localStorage.setItem('counterCode', counterCode)
+                localStorage.setItem('password', data?.password)
+
+                toast.dismiss()
+                toast.success('সফলভাবে লগইন করা হয়েছে')
+                navigate('/dashboard')
+
+
+            }
+            else if (dbPassword === password && status === 'active' && role === 'admin') {
+                localStorage.setItem('counterCode', counterCode)
+                localStorage.setItem('password', data?.password)
+                toast.dismiss()
+                toast.success('সফলভাবে লগইন করা হয়েছে')
+                navigate('/admin')
+            }
+            // status inactive--->
+            else if (status === 'inactive') {
+                toast.dismiss()
+                toast.error('কাউন্টার কোড যাচাই করুন আপনার কাউন্টার একটিভ নয়!')
+            }
+            else {
+                toast.dismiss()
+                toast.error('কাউন্টার কোড যাচাই করুন আপনি কাউন্টার সদস্য নয়!')
+            }
+
+        }
     }
     return (
         <div className="w-full min-h-screen relative ">

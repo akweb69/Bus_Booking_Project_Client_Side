@@ -1,12 +1,19 @@
 import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate()
 
-    const value = { user, setUser, loading, setLoading };
+    const logout = async () => {
+        localStorage.removeItem('counterCode');
+        localStorage.removeItem('password');
+        navigate('/')
+    }
+
+    const value = { loading, setLoading, logout };
 
     return (
         <AppContext.Provider value={value}>
