@@ -188,8 +188,8 @@ const AddRoute = () => {
                 className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 pb-12"
             >
                 <AdminHeader
-                    title="নতুন রুট বানান"
-                    subtitle="এখানে নতুন রুট বানাতে পারবেন"
+                    title="Manage Routes"
+                    subtitle="Add, Edit, and Delete Routes"
                 />
 
                 <div className="mt-4">
