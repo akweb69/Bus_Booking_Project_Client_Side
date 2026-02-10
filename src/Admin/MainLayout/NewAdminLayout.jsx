@@ -77,21 +77,18 @@ const NewAdminLayout = () => {
         <div className="w-full bg-gray-50 min-h-screen text-sm ">
             <div className="px-4  border-b border-gray-200 bg-white">
                 {/* nav bar */}
-                <div className="w-full grid grid-cols-12 ">
+                <div className="w-full flex  gap-1 py-1">
                     {/* counter and admin management */}
-                    <div className="border-r p-2 border-gray-500 space-y-1 ">
-                        <Button onClick={() => setActiveContent(0)} className="w-full cursor-pointer">Add User</Button>
-                        <Button onClick={() => setActiveContent(1)} className="w-full cursor-pointer">Manage users </Button>
-                    </div>
-                    <div className="border-r p-2 border-gray-500 space-y-1 ">
-                        <Button onClick={() => setActiveContent(3)} className="w-full cursor-pointer bg-emerald-800">Add Bus</Button>
-                        <Button onClick={() => setActiveContent(4)} className="w-full cursor-pointer bg-emerald-800">Manage Bus </Button>
-                    </div>
+                    <Button onClick={() => setActiveContent(0)} className=" cursor-pointer">Add User</Button>
+                    <Button onClick={() => setActiveContent(1)} className=" cursor-pointer">Manage users </Button>
+                    <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-emerald-800">Add Bus</Button>
+                    <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-emerald-800">Manage Bus </Button>
+
 
                 </div>
             </div>
             {/* main content */}
-            <div className="mt-4">
+            <div className="mt-4 px-4">
                 {
                     activeContent === 0 && <AddNewCounter />
                 }
