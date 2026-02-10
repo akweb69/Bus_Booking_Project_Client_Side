@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import AdminHeader from './AdminHeader';
+import useAllBuses from '../Hooks/useAllBuses';
 
 const API_BASE = import.meta.env.VITE_BASE_URL;
 
@@ -31,7 +32,7 @@ const ManageBus = () => {
     const [filterAvailability, setFilterAvailability] = useState('all');
     const [editingBus, setEditingBus] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
-
+    const { busRefetch } = useAllBuses();
     const [formData, setFormData] = useState({
         busName: '',
         busNumber: '',
@@ -149,6 +150,7 @@ const ManageBus = () => {
             toast.error('Failed to update bus');
         } finally {
             setIsSubmitting(false);
+            busRefetch();
         }
     };
 

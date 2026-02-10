@@ -9,6 +9,7 @@ import AllCounters from '../Component/AllUsers';
 import AddBus from '../Component/AddBus';
 import ManageBus from '../Component/ManageBus';
 import AddRoute from '../Component/AddRoute';
+import BookASeat from '../Component/BookASeat';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
@@ -90,6 +91,7 @@ const NewAdminLayout = () => {
                     <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-emerald-800">Add Bus</Button>
                     <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-emerald-800">Manage Bus </Button>
                     <Button onClick={() => setActiveContent(5)} className=" cursor-pointer bg-emerald-800"> Route </Button>
+                    <Button onClick={() => setActiveContent(6)} className=" cursor-pointer bg-emerald-800"> Book a seat </Button>
 
 
 
@@ -115,6 +117,9 @@ const NewAdminLayout = () => {
                 }
                 {
                     activeContent === 5 && <AddRoute />
+                }
+                {
+                    activeContent === 6 && <BookASeat />
                 }
 
             </div>

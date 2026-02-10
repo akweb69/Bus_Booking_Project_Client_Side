@@ -7,9 +7,9 @@ const useAllBuses = () => {
         isLoading: busLoading,
         isError,
         error,
-        refetch: routeRefetch,
+        refetch: busRefetch,
     } = useQuery({
-        queryKey: ["routes"],
+        queryKey: ["bus"],
         queryFn: async () => {
             const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/bus`);
             return res.data;
@@ -21,8 +21,9 @@ const useAllBuses = () => {
         busLoading,
         isError,
         error,
-        routeRefetch,
+        busRefetch,
     };
 };
+
 
 export default useAllBuses;
