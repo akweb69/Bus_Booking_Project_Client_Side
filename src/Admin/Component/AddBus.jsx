@@ -161,7 +161,7 @@ const AddBus = () => {
                     subtitle="এখানে নতুন বাস যোগ করতে পারবেন"
                 />
 
-                <div className="mt-6 px-4 max-w-7xl mx-auto">
+                <div className="mt-6">
                     <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
                         {/* Header */}
                         <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-8 py-6 text-white">

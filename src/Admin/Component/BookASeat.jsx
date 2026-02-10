@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bus, MapPin, X, Loader2, RefreshCcw, CheckCircle2, Info, User, UserCircle2, Calendar, Route, Sparkles, ChevronRight,
-    ArrowRight
+    ArrowRight,
+    RotateCcw,
+    Clock,
+    Shield,
+    Zap,
+    Users,
+    Armchair
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAllRoute from "../Hooks/useAllRoute";
@@ -141,6 +147,20 @@ const BookASeat = () => {
 
     const availableCount = seats.filter(s => !s.isBooked).length;
 
+    const formatDateFull = (dateStr) => {
+        if (!dateStr) return "";
+
+        const date = new Date(dateStr);
+
+        return date.toLocaleDateString("en-US", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 relative overflow-hidden">
             {/* Animated Background Elements */}
@@ -150,7 +170,7 @@ const BookASeat = () => {
                 <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className=" relative z-10">
 
 
 
@@ -211,56 +231,191 @@ const BookASeat = () => {
 
                 {!selectedBus ? (
                     /* BUS LIST */
-                    <div className="grid gap-5">
+                    <div className="grid gap-6">
                         {filteredBuses.length > 0 ? filteredBuses.map((bus, idx) => (
                             <motion.div
                                 layout
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.05 }}
+                                transition={{
+                                    delay: idx * 0.08,
+                                    type: "spring",
+                                    stiffness: 100
+                                }}
                                 key={bus._id}
-                                className="group bg-white/90 backdrop-blur-sm p-6 rounded-3xl border-2 border-white shadow-xl shadow-gray-200/50 hover:shadow-2xl hover:shadow-indigo-200/50 transition-all duration-300 hover:scale-[1.02]"
+                                className="group relative bg-gradient-to-br from-white to-gray-50/80 backdrop-blur-xl p-8 rounded-3xl border border-gray-200/60 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden"
                             >
-                                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                                    <div className="flex items-center gap-5 flex-1">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                            <div className="relative p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg">
-                                                <Bus size={32} strokeWidth={2.5} />
+                                {/* Animated background gradient */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                                {/* Decorative corner accent */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 rounded-bl-full translate-x-16 -translate-y-16 group-hover:scale-150 transition-transform duration-700"></div>
+
+                                <div className="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                                    {/* Left Section: Bus Info */}
+                                    <div className="flex items-start gap-6 flex-1 w-full">
+                                        {/* Bus Icon with Enhanced Animation */}
+                                        <div className="relative flex-shrink-0">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-xl opacity-40 group-hover:opacity-70 transition-all duration-500 group-hover:scale-110"></div>
+                                            <div className="relative p-5 bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-600 rounded-2xl text-white shadow-xl group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+                                                <Bus size={36} strokeWidth={2.5} className="drop-shadow-lg" />
                                             </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-black text-xl text-gray-800 mb-1">{bus.busName}</h3>
-                                            <div className="flex items-center gap-2 text-gray-600">
-                                                <span className="font-semibold">{bus.fromLocation}</span>
-                                                <ChevronRight className="w-4 h-4" />
-                                                <span className="font-semibold">{bus.toLocation}</span>
+
+                                        {/* Bus Details */}
+                                        <div className="flex-1 space-y-4">
+                                            {/* Bus Name */}
+                                            <div>
+                                                <h3 className="font-black text-2xl text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors duration-300">
+                                                    {bus.busName}
+                                                </h3>
+
+                                                {/* Route */}
+                                                <div className="flex items-center gap-3 text-gray-700 flex-wrap">
+                                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg border border-gray-200">
+                                                        <MapPin size={16} className="text-indigo-500" />
+                                                        <span className="font-bold text-sm">{bus.fromLocation}</span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-1 px-2 py-1 bg-indigo-100 rounded-full">
+                                                        <ChevronRight className="w-4 h-4 text-indigo-600 animate-pulse" />
+                                                        <ChevronRight className="w-4 h-4 text-indigo-600 -ml-2 animate-pulse [animation-delay:200ms]" />
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                                                        <MapPin size={16} className="text-purple-500" />
+                                                        <span className="font-bold text-sm">{bus.toLocation}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Time and Date Info */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {/* Timing Card */}
+                                                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                                        <Clock size={18} className="text-indigo-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 font-medium mb-0.5">Journey Time</p>
+                                                        <div className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                                                            <span>{formatTimeAMPM(bus?.startTime)}</span>
+                                                            <ArrowRight size={14} className="text-indigo-500" />
+                                                            <span>{formatTimeAMPM(bus?.endTime)}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Date Card */}
+                                                {filters.date && (
+                                                    <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                                                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                                                            <Calendar size={18} className="text-purple-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs text-gray-500 font-medium mb-0.5">Travel Date</p>
+                                                            <p className="text-sm font-bold text-gray-800">
+                                                                {formatDateFull(filters.date)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Additional Info Tags */}
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                {/* <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200">
+                                                    <Shield size={14} />
+                                                    Verified
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-xs font-semibold border border-amber-200">
+                                                    <Zap size={14} />
+                                                    AC Available
+                                                </span> */}
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-200">
+                                                    <Users size={14} />
+                                                    {availableCount || 42} Seats
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-6">
-                                        <div className="text-center">
-                                            <div className="text-sm text-gray-500 mb-1">Price per seat</div>
-                                            <span className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">৳{bus.perSeatFees}</span>
+
+                                    {/* Right Section: Price & Action */}
+                                    <div className="flex flex-col items-center justify-center gap-5 lg:min-w-[200px]">
+                                        {/* Price Card */}
+                                        <div className="relative text-center p-6 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl border-2 border-indigo-200/50 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 rounded-2xl blur-sm"></div>
+                                            <div className="relative">
+                                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                                    Starting From
+                                                </div>
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <span className="text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+                                                        ৳{bus.perSeatFees}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-gray-500 font-medium mt-2">
+                                                    per seat
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        {/* CTA Button */}
                                         <button
                                             onClick={() => loadSeats(bus)}
-                                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-300/50 hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                                            className="relative w-full group/btn overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-base shadow-xl shadow-indigo-300/50 hover:shadow-2xl hover:shadow-purple-400/50 transition-all duration-500 hover:scale-105 active:scale-95"
                                         >
-                                            Select Seat
-                                            <ChevronRight className="w-5 h-5" />
+                                            <span className="relative flex items-center justify-center gap-2 z-10">
+                                                <Armchair size={20} strokeWidth={2.5} />
+                                                Select Your Seat
+                                                <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                                            </span>
+
+                                            {/* Button shine effect */}
+                                            <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"></div>
                                         </button>
+
+                                        {/* Seats Available Indicator */}
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <div className="flex gap-1">
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse [animation-delay:200ms]"></div>
+                                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse [animation-delay:400ms]"></div>
+                                            </div>
+                                            <span className="text-green-700 font-semibold">Seats Available</span>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
                         )) : (
                             <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-center py-32 bg-white/60 backdrop-blur-sm rounded-3xl"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5 }}
+                                className="relative text-center py-40 bg-gradient-to-br from-white via-gray-50 to-gray-100/50 backdrop-blur-xl rounded-3xl border border-gray-200/60 shadow-lg overflow-hidden"
                             >
-                                <Bus className="w-20 h-20 mx-auto text-gray-300 mb-4" />
-                                <p className="text-gray-400 text-lg font-medium">No buses found for this criteria.</p>
+                                {/* Decorative background elements */}
+                                <div className="absolute top-10 left-10 w-64 h-64 bg-indigo-200/20 rounded-full blur-3xl"></div>
+                                <div className="absolute bottom-10 right-10 w-64 h-64 bg-purple-200/20 rounded-full blur-3xl"></div>
+
+                                <div className="relative z-10">
+                                    <div className="relative inline-block mb-6">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400 rounded-3xl blur-xl opacity-30"></div>
+                                        <div className="relative p-8 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl">
+                                            <Bus className="w-24 h-24 text-gray-400" strokeWidth={1.5} />
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-2xl font-black text-gray-700 mb-3">No Buses Available</h3>
+                                    <p className="text-gray-500 text-lg font-medium max-w-md mx-auto mb-6">
+                                        We couldn't find any buses matching your search criteria. Try adjusting your filters or search for a different route.
+                                    </p>
+
+                                    <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <RotateCcw size={18} />
+                                        Reset Filters
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
                     </div>

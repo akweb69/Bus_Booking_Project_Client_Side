@@ -13,7 +13,7 @@ import BookASeat from '../Component/BookASeat';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
-    const [activeContent, setActiveContent] = useState(10);
+    const [activeContent, setActiveContent] = useState(6);
     const navigate = useNavigate();
 
     useEffect(() => {
