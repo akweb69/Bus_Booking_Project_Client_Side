@@ -97,7 +97,7 @@ const AllCounters = () => {
         // Password validation (only if user tried to change it)
         if (newPassword || confirmPassword) {
             if (newPassword.length < 6) {
-                toast.error('নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে');
+                toast.error('New password minimum six charecter');
                 return;
             }
             if (newPassword !== confirmPassword) {
@@ -177,7 +177,7 @@ const AllCounters = () => {
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-8 text-white">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-2xl md:text-3xl font-bold">সকল কাউন্টার</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold">All Counter and Admin</h2>
                     <button
                         onClick={() => {
                             refetch();
@@ -186,7 +186,7 @@ const AllCounters = () => {
                         className="flex items-center gap-2 bg-white/20 px-5 py-3 rounded-xl hover:bg-white/30 transition-all"
                     >
                         <RefreshCw size={18} />
-                        রিফ্রেশ
+                        Refresh
                     </button>
                 </div>
             </div>
@@ -210,9 +210,9 @@ const AllCounters = () => {
                         onChange={(e) => setRoleFilter(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-emerald-100 rounded-xl focus:border-emerald-500 outline-none"
                     >
-                        <option value="all">সকল রোল</option>
-                        <option value="counter">কাউন্টার</option>
-                        <option value="admin">অ্যাডমিন</option>
+                        <option value="all">All Role</option>
+                        <option value="counter">Counter Role</option>
+                        <option value="admin">Admin Role</option>
                     </select>
 
                     <select
@@ -220,9 +220,9 @@ const AllCounters = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-emerald-100 rounded-xl focus:border-emerald-500 outline-none"
                     >
-                        <option value="all">সকল স্ট্যাটাস</option>
-                        <option value="active">সক্রিয়</option>
-                        <option value="inactive">নিষ্ক্রিয়</option>
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                 </div>
             </div>
@@ -232,19 +232,19 @@ const AllCounters = () => {
                 <table className="w-full text-left">
                     <thead className="bg-emerald-50">
                         <tr>
-                            <th className="px-6 py-4 font-semibold text-emerald-800">নাম</th>
-                            <th className="px-6 py-4 font-semibold text-emerald-800">আইডি</th>
-                            <th className="px-6 py-4 font-semibold text-emerald-800 hidden md:table-cell">লোকেশন</th>
-                            <th className="px-6 py-4 font-semibold text-emerald-800">রোল</th>
-                            <th className="px-6 py-4 font-semibold text-emerald-800">স্ট্যাটাস</th>
-                            <th className="px-6 py-4 font-semibold text-emerald-800 text-right">কার্যক্রম</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800">Name</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800">ID</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800 hidden md:table-cell">Location</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800">Role</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800">Status</th>
+                            <th className="px-6 py-4 font-semibold text-emerald-800 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {currentPageItems.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="text-center py-16 text-zinc-500">
-                                    কোনো তথ্য পাওয়া যায়নি
+                                    No data found
                                 </td>
                             </tr>
                         ) : (
@@ -265,7 +265,7 @@ const AllCounters = () => {
                                             className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${counter.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                                                 }`}
                                         >
-                                            {counter.status === 'active' ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                                            {counter.status === 'active' ? 'Active ' : 'Inactive'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
@@ -335,7 +335,7 @@ const AllCounters = () => {
                             className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
                         >
                             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                                <h3 className="text-xl font-bold text-emerald-800">কাউন্টার সম্পাদনা</h3>
+                                <h3 className="text-xl font-bold text-emerald-800">Edit Counter</h3>
                                 <button onClick={() => setIsEditModalOpen(false)}>
                                     <X size={24} className="text-zinc-500 hover:text-zinc-800" />
                                 </button>
@@ -343,7 +343,7 @@ const AllCounters = () => {
 
                             <form onSubmit={saveChanges} className="p-6 space-y-5">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">কাউন্টারের নাম</label>
+                                    <label className="block text-sm font-medium mb-1">Counter Name</label>
                                     <input
                                         name="counterName"
                                         value={editForm.counterName || ''}
@@ -353,7 +353,7 @@ const AllCounters = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">কাউন্টার আইডি</label>
+                                    <label className="block text-sm font-medium mb-1">Counter ID</label>
                                     <input
                                         name="counterID"
                                         value={editForm.counterID || ''}
@@ -363,7 +363,7 @@ const AllCounters = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">লোকেশন</label>
+                                    <label className="block text-sm font-medium mb-1">Counter Location</label>
                                     <input
                                         name="counterLocation"
                                         value={editForm.counterLocation || ''}
@@ -374,28 +374,28 @@ const AllCounters = () => {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">স্ট্যাটাস</label>
+                                        <label className="block text-sm font-medium mb-1">Status</label>
                                         <select
                                             name="status"
                                             value={editForm.status || 'active'}
                                             onChange={handleEditInput}
                                             className="w-full px-4 py-3 border rounded-xl focus:border-emerald-500 outline-none"
                                         >
-                                            <option value="active">সক্রিয়</option>
-                                            <option value="inactive">নিষ্ক্রিয়</option>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">রোল</label>
+                                        <label className="block text-sm font-medium mb-1">Role</label>
                                         <select
                                             name="role"
                                             value={editForm.role || 'counter'}
                                             onChange={handleEditInput}
                                             className="w-full px-4 py-3 border rounded-xl focus:border-emerald-500 outline-none"
                                         >
-                                            <option value="counter">কাউন্টার</option>
-                                            <option value="admin">অ্যাডমিন</option>
+                                            <option value="counter">Counter</option>
+                                            <option value="admin">Admin</option>
                                         </select>
                                     </div>
                                 </div>
@@ -403,17 +403,17 @@ const AllCounters = () => {
                                 {/* ── Password Reset Section ── */}
                                 <div className="pt-4 border-t">
                                     <h4 className="text-base font-semibold text-zinc-700 mb-3 flex items-center gap-2">
-                                        <Lock size={18} /> পাসওয়ার্ড রিসেট (ঐচ্ছিক)
+                                        <Lock size={18} /> Password reset (optional)
                                     </h4>
 
                                     <div className="space-y-4">
                                         <div className="relative">
-                                            <label className="block text-sm font-medium mb-1">নতুন পাসওয়ার্ড</label>
+                                            <label className="block text-sm font-medium mb-1">New Password</label>
                                             <input
                                                 type={showNewPass ? 'text' : 'password'}
                                                 value={newPassword}
                                                 onChange={(e) => setNewPassword(e.target.value)}
-                                                placeholder="নতুন পাসওয়ার্ড দিন (ঐচ্ছিক)"
+                                                placeholder="new password"
                                                 className="w-full pl-10 pr-10 py-3 border rounded-xl focus:border-emerald-500 outline-none"
                                             />
                                             <button
@@ -426,12 +426,12 @@ const AllCounters = () => {
                                         </div>
 
                                         <div className="relative">
-                                            <label className="block text-sm font-medium mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
+                                            <label className="block text-sm font-medium mb-1">Confirm Password</label>
                                             <input
                                                 type={showConfirmPass ? 'text' : 'password'}
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                                placeholder="আবার লিখুন"
+                                                placeholder=" confirm password"
                                                 className="w-full pl-10 pr-10 py-3 border rounded-xl focus:border-emerald-500 outline-none"
                                             />
                                             <button
@@ -459,7 +459,7 @@ const AllCounters = () => {
                                         className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:opacity-60 flex items-center gap-2 min-w-[140px] justify-center"
                                     >
                                         {saving && <Loader2 className="animate-spin" size={18} />}
-                                        সংরক্ষণ করুন
+                                        Update
                                     </button>
                                 </div>
                             </form>
@@ -483,9 +483,9 @@ const AllCounters = () => {
                             exit={{ scale: 0.9 }}
                             className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
                         >
-                            <h3 className="text-xl font-bold text-rose-700 mb-4">নিশ্চিত করুন</h3>
+                            <h3 className="text-xl font-bold text-rose-700 mb-4">Are you sure?</h3>
                             <p className="mb-6 text-zinc-700">
-                                আপনি কি <strong>{selectedCounter?.counterName}</strong> কাউন্টারটি মুছে ফেলতে চান?
+                                You are about to delete <strong>{selectedCounter?.counterName}</strong>
                             </p>
                             <div className="flex justify-end gap-4">
                                 <button
@@ -500,7 +500,7 @@ const AllCounters = () => {
                                     className="px-6 py-3 bg-rose-600 text-white rounded-xl hover:bg-rose-700 disabled:opacity-60 flex items-center gap-2"
                                 >
                                     {deleting && <Loader2 className="animate-spin" size={18} />}
-                                    হ্যাঁ, মুছুন
+                                    Yes! Delete
                                 </button>
                             </div>
                         </motion.div>
