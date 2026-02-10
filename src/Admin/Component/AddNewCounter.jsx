@@ -73,7 +73,7 @@ const AddNewCounter = () => {
         const res = axios.post(`${import.meta.env.VITE_BASE_URL}/user`, formData);
         if (res) {
             toast.dismiss();
-            toast.success('কাউন্টার সফলভাবে যোগ করা হয়েছে!', {
+            toast.success('successfully added a new counter', {
                 icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
             });
             refetch();
@@ -90,7 +90,7 @@ const AddNewCounter = () => {
         }
         else {
             toast.dismiss();
-            toast.error('কাউন্টার যোগ করা যায়নি!', {
+            toast.error('something went wrong', {
                 icon: <CheckCircle2 className="w-5 h-5 text-red-500" />,
             });
             setLoading(false);
@@ -113,8 +113,8 @@ const AddNewCounter = () => {
                             <PlusCircle className="w-10 h-10" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold">নতুন কাউন্টার যোগ করুন</h2>
-                            <p className="text-emerald-100 mt-1">কাউন্টারের সকল তথ্য সঠিকভাবে দিন</p>
+                            <h2 className="text-3xl font-bold"> Added New Counter </h2>
+                            <p className="text-emerald-100 mt-1"> Fill out the form to add a new counter </p>
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@ const AddNewCounter = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Counter Name */}
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">কাউন্টারের নাম</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter Name </label>
                             <div className="relative">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <input
@@ -132,7 +132,7 @@ const AddNewCounter = () => {
                                     value={counterName}
                                     onChange={(e) => setCounterName(e.target.value)}
                                     className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-zinc-400"
-                                    placeholder="যেমন: মিরপুর কাউন্টার"
+                                    placeholder="Ex: মিরপুর কাউন্টার"
                                     required
                                 />
                             </div>
@@ -140,7 +140,7 @@ const AddNewCounter = () => {
 
                         {/* Counter ID */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">কাউন্টার আইডি</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter ID</label>
                             <div className="relative">
                                 <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <input
@@ -156,7 +156,7 @@ const AddNewCounter = () => {
 
                         {/* Location */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">অবস্থান</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter Location</label>
                             <div className="relative">
                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <input
@@ -172,7 +172,7 @@ const AddNewCounter = () => {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">পাসওয়ার্ড</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Add Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <input
@@ -195,7 +195,7 @@ const AddNewCounter = () => {
 
                         {/* Confirm Password */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">পাসওয়ার্ড নিশ্চিত করুন</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Confirm Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <input
@@ -218,7 +218,7 @@ const AddNewCounter = () => {
 
                         {/* Status */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">স্ট্যাটাস</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Status</label>
                             <select
                                 value={counterStatus}
                                 onChange={(e) => setCounterStatus(e.target.value)}
@@ -231,7 +231,7 @@ const AddNewCounter = () => {
 
                         {/* Route */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">রুট নির্বাচন করুন</label>
+                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Select Route</label>
                             <div className="relative">
                                 <RouteIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
                                 <select
@@ -240,7 +240,7 @@ const AddNewCounter = () => {
                                     className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none"
                                     required
                                 >
-                                    <option value="">রুট নির্বাচন করুন</option>
+                                    <option value="">Select a route</option>
                                     {routes.map((route) => (
                                         <option key={route.value} value={route.value}>
                                             {route.label}
@@ -261,20 +261,20 @@ const AddNewCounter = () => {
                         {loading ? (
                             <>
                                 <Loader2 className="w-6 h-6 animate-spin" />
-                                কাউন্টার যোগ করা হচ্ছে...
+                                Please wait adding counter...
                             </>
                         ) : (
                             <>
                                 <PlusCircle className="w-6 h-6" />
-                                কাউন্টার যোগ করুন
+                                Add New Counter
                             </>
                         )}
                     </motion.button>
                 </form>
             </div>
 
-            <p className="text-center text-zinc-400 text-sm mt-6">
-                সকল তথ্য সুরক্ষিতভাবে সংরক্ষিত হবে
+            <p className="text-center text-zinc-400 text-sm my-6 ">
+                &copy; 2026 Security. All rights reserved.
             </p>
         </motion.div>
     );
