@@ -8,6 +8,7 @@ import AddNewCounter from '../Component/AddNewCounter';
 import AllCounters from '../Component/AllUsers';
 import AddBus from '../Component/AddBus';
 import ManageBus from '../Component/ManageBus';
+import AddRoute from '../Component/AddRoute';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
@@ -72,6 +73,11 @@ const NewAdminLayout = () => {
             </div>
         );
     }
+    const handleLogput = () => {
+        localStorage.removeItem('counterCode');
+        localStorage.removeItem('password');
+        navigate('/');
+    };
 
     return (
         <div className="w-full bg-gray-50 min-h-screen text-sm ">
@@ -83,6 +89,12 @@ const NewAdminLayout = () => {
                     <Button onClick={() => setActiveContent(1)} className=" cursor-pointer">Manage users </Button>
                     <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-emerald-800">Add Bus</Button>
                     <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-emerald-800">Manage Bus </Button>
+                    <Button onClick={() => setActiveContent(5)} className=" cursor-pointer bg-emerald-800"> Route </Button>
+
+
+
+
+                    <Button onClick={() => handleLogput()} className=" cursor-pointer bg-rose-600">Logout </Button>
 
 
                 </div>
@@ -100,6 +112,9 @@ const NewAdminLayout = () => {
                 }
                 {
                     activeContent === 4 && <ManageBus />
+                }
+                {
+                    activeContent === 5 && <AddRoute />
                 }
 
             </div>
