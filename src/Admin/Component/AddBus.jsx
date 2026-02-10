@@ -157,8 +157,8 @@ const AddBus = () => {
                 className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-10"
             >
                 <AdminHeader
-                    title="নতুন বাস যোগ করুন"
-                    subtitle="এখানে নতুন বাস যোগ করতে পারবেন"
+                    title="Add a new bus"
+                    subtitle="here you can add a new bus to the system"
                 />
 
                 <div className="mt-6">
