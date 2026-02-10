@@ -12,9 +12,9 @@ import {
 
 /* Navigation Items (বাংলা) */
 const navItems = [
-    { name: "হোম", path: "/", icon: Home },
-    { name: "আমাদের সম্পর্কে", path: "/about", icon: Info },
-    { name: "ফিচারসমূহ", path: "/Dashboard", icon: Sparkles },
+    { name: "Home", path: "/", icon: Home },
+    // { name: "আমাদের সম্পর্কে", path: "/about", icon: Info },
+    // { name: "ফিচারসমূহ", path: "/Dashboard", icon: Sparkles },
 ];
 
 export default function Navbar() {

@@ -31,11 +31,11 @@ const Hero = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        toast.loading('কাউন্টার কোড যাচাই করা হচ্ছে...');
+        toast.loading('Verifying counter code...');
 
         if (!counterCode || !password) {
             toast.dismiss();
-            toast.error('সবগুলো ফিল্ড পূরণ করুন!');
+            toast.error('Please fill in all fields!');
             return;
         }
         // check user exits----->
@@ -52,26 +52,25 @@ const Hero = () => {
                 localStorage.setItem('password', data?.password)
 
                 toast.dismiss()
-                toast.success('সফলভাবে লগইন করা হয়েছে')
+                toast.success('Successfully logged in')
                 navigate('/dashboard')
-
 
             }
             else if (dbPassword === password && status === 'active' && role === 'admin') {
                 localStorage.setItem('counterCode', counterCode)
                 localStorage.setItem('password', data?.password)
                 toast.dismiss()
-                toast.success('সফলভাবে লগইন করা হয়েছে')
+                toast.success('Successfully logged in')
                 navigate('/admin')
             }
             // status inactive--->
             else if (status === 'inactive') {
                 toast.dismiss()
-                toast.error('কাউন্টার কোড যাচাই করুন আপনার কাউন্টার একটিভ নয়!')
+                toast.error('Please check your counter code - your counter is not active!')
             }
             else {
                 toast.dismiss()
-                toast.error('কাউন্টার কোড যাচাই করুন আপনি কাউন্টার সদস্য নয়!')
+                toast.error('Please check your counter code - you are not a counter member!')
             }
 
         }
@@ -97,23 +96,22 @@ const Hero = () => {
                     {/* LEFT SIDE */}
                     <div className="text-white flex flex-col justify-center">
                         <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
-                            বাস টিকিট <br />
-                            <span className="text-rose-400">ম্যানেজমেন্ট সিস্টেম</span>
+                            Bus Ticket <br />
+                            <span className="text-rose-400">Management System</span>
                         </h1>
 
                         <p className="mt-4 text-gray-200 max-w-md leading-relaxed">
-                            এই সিস্টেমটি শুধুমাত্র <b>Counter</b> এবং <b>Admin</b> এর জন্য।
-                            <br />
-                            এখানে টিকিট বুকিং, সিট ম্যানেজমেন্ট এবং ট্রিপ কন্ট্রোল করা যাবে।
+                            This system is only for <b>Counter</b> and <b>Admin</b>.<br />
+                            Here you can manage ticket booking, seat management and trip control.
                             <br />
                         </p>
 
                         <div className="mt-6 flex gap-4">
                             <button className="px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 transition font-semibold">
-                                ড্যাশবোর্ড দেখুন
+                                View Dashboard
                             </button>
                             <button className="px-6 py-3 rounded-xl border border-white/40 hover:bg-white/10 transition">
-                                বিস্তারিত জানুন
+                                Learn More
                             </button>
                         </div>
                     </div>
@@ -122,16 +120,14 @@ const Hero = () => {
                     <div className="flex justify-center items-center">
                         <div className="w-full max-w-md p-8 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
                             <h2 className="text-2xl font-semibold text-white text-center">
-                                কাউন্টার লগইন
+                                Counter Login
                             </h2>
 
                             <p className="text-center text-gray-300 text-sm mt-2">
-                                অনুগ্রহ করে আপনার কাউন্টার একাউন্টে লগইন করুন
-
+                                Please login to your counter account
                             </p>
 
                             <form
-
                                 onSubmit={handleSubmit}
                                 className="mt-6 space-y-4">
                                 <input
@@ -164,16 +160,15 @@ const Hero = () => {
                                     type="submit"
                                     className="w-full py-3 rounded-lg bg-rose-500 hover:bg-rose-600 transition text-white font-semibold"
                                 >
-                                    লগইন করুন
+                                    Login
                                 </button>
                             </form>
 
                             <p className="text-center text-gray-300 mt-4 text-sm">
-                                এই লগইন শুধুমাত্র
+                                This login is only applicable for
                                 <span className="text-rose-400 font-semibold">
-                                    {" "}Counter ও Admin
-                                </span>{" "}
-                                এর জন্য প্রযোজ্য
+                                    {" "}Counter & Admin
+                                </span>
                             </p>
                         </div>
                     </div>
