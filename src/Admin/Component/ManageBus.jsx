@@ -206,8 +206,8 @@ const ManageBus = () => {
                 className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 pb-12"
             >
                 <AdminHeader
-                    title="বাস ম্যানেজ করুন"
-                    subtitle="এখানে সকল বাস দেখতে, এডিট এবং ডিলিট করতে পারবেন"
+                    title="Manage Buses"
+                    subtitle="Manage your buses here."
                 />
 
                 <div className="mt-6 ">
