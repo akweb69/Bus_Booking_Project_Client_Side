@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bus, MapPin, DollarSign, Clock, Users, Loader2, CheckCircle2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import useAllRoute from '../Hooks/useAllRoute';
+import AdminHeader from './AdminHeader';
+
+const API_BASE = import.meta.env.VITE_BASE_URL;
 
 const AddBus = () => {
     const [formData, setFormData] = useState({
@@ -18,6 +22,7 @@ const AddBus = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { routeLoading, allRoutes } = useAllRoute();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -59,8 +64,35 @@ const AddBus = () => {
         setIsSubmitting(true);
 
         try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1400));
+            // Prepare payload
+            const payload = {
+                busName: formData.busName.trim(),
+                busNumber: formData.busNumber.trim(),
+                perSeatFees: Number(formData.perSeatFees),
+                fromLocation: formData.fromLocation.trim(),
+                toLocation: formData.toLocation.trim(),
+                startTime: formData.startTime,
+                endTime: formData.endTime,
+                availableSeats: Number(formData.availableSeats),
+                availability: formData.availability,
+                route: formData.route || null,
+            };
+
+            // Send to backend
+            const res = await fetch(`${API_BASE}/bus`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || 'Failed to add bus');
+            }
+
+            const result = await res.json();
 
             // ── Pretty console output ───────────────────────────────────────
             console.log('╔════════════════════════════════════════════╗');
@@ -74,6 +106,7 @@ const AddBus = () => {
             console.log(`║ Available Seats  │ ${formData.availableSeats.padEnd(27)} ║`);
             console.log(`║ Availability     │ ${formData.availability.toUpperCase().padEnd(27)} ║`);
             console.log(`║ Selected Route   │ ${(formData.route || 'Not selected').padEnd(27)} ║`);
+            console.log(`║ Database ID      │ ${(result.insertedId || 'N/A').toString().padEnd(27)} ║`);
             console.log('╚════════════════════════════════════════════╝');
 
             toast.success('Bus added successfully!', {
@@ -96,31 +129,49 @@ const AddBus = () => {
             });
         } catch (error) {
             console.error('Error adding bus:', error);
-            toast.error('Failed to add bus. Please try again.');
+            toast.error(error.message || 'Failed to add bus. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    if (routeLoading) {
+        return (
+            <div className="w-full h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900">
+                <div className="text-center">
+                    <Loader2 className="animate-spin h-12 w-12 mx-auto text-emerald-600 dark:text-emerald-400 mb-3" />
+                    <p className="text-gray-600 dark:text-gray-400">Loading routes...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
-            <Toaster position="top-center" richColors />
+            <Toaster position="top-right" richColors toastOptions={{ duration: 4000 }} />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4 sm:px-6 lg:px-8"
+                className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-10"
             >
-                <div className="w-full">
+                <AdminHeader
+                    title="নতুন বাস যোগ করুন"
+                    subtitle="এখানে নতুন বাস যোগ করতে পারবেন"
+                />
+
+                <div className="mt-6 px-4 max-w-7xl mx-auto">
                     <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-8 py-6 text-white">
+                        <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-8 py-6 text-white">
                             <div className="flex items-center gap-3">
                                 <Bus className="h-8 w-8" />
-                                <h1 className="text-3xl font-bold">Add New Bus</h1>
+                                <div>
+                                    <h1 className="text-3xl font-bold">Add New Bus</h1>
+                                    <p className="mt-1 text-emerald-100">Enter bus details to add to the system</p>
+                                </div>
                             </div>
-                            <p className="mt-2 text-indigo-100">Enter bus details to add to the system</p>
                         </div>
 
                         {/* Form */}
@@ -128,7 +179,7 @@ const AddBus = () => {
                             {/* Bus Name */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Bus Name
+                                    Bus Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -136,14 +187,14 @@ const AddBus = () => {
                                     value={formData.busName}
                                     onChange={handleChange}
                                     placeholder="e.g. Green Line Paribahan"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* Bus Number */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Bus Number / Reg
+                                    Bus Number / Reg <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -151,14 +202,14 @@ const AddBus = () => {
                                     value={formData.busNumber}
                                     onChange={handleChange}
                                     placeholder="e.g. DHAKA METRO-G-5678"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* Per Seat Fees */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <DollarSign size={16} /> Per Seat Fee (BDT)
+                                    <DollarSign size={16} /> Per Seat Fee (BDT) <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="number"
@@ -166,14 +217,15 @@ const AddBus = () => {
                                     value={formData.perSeatFees}
                                     onChange={handleChange}
                                     placeholder="e.g. 950"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    min="1"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* From */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <MapPin size={16} /> From
+                                    <MapPin size={16} /> From <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -181,14 +233,14 @@ const AddBus = () => {
                                     value={formData.fromLocation}
                                     onChange={handleChange}
                                     placeholder="e.g. Dhaka"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* To */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <MapPin size={16} /> To
+                                    <MapPin size={16} /> To <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -196,42 +248,42 @@ const AddBus = () => {
                                     value={formData.toLocation}
                                     onChange={handleChange}
                                     placeholder="e.g. Cox's Bazar"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* Start Time */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Clock size={16} /> Departure Time
+                                    <Clock size={16} /> Departure Time <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="time"
                                     name="startTime"
                                     value={formData.startTime}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* End Time */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Clock size={16} /> Arrival Time
+                                    <Clock size={16} /> Arrival Time <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="time"
                                     name="endTime"
                                     value={formData.endTime}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* Available Seats */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Users size={16} /> Available Seats
+                                    <Users size={16} /> Available Seats <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="number"
@@ -239,20 +291,21 @@ const AddBus = () => {
                                     value={formData.availableSeats}
                                     onChange={handleChange}
                                     placeholder="e.g. 42"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    min="1"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 />
                             </div>
 
                             {/* Availability */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Availability
+                                    Availability <span className="text-red-500">*</span>
                                 </label>
                                 <select
                                     name="availability"
                                     value={formData.availability}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 >
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
@@ -268,13 +321,14 @@ const AddBus = () => {
                                     name="route"
                                     value={formData.route}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 transition"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition"
                                 >
                                     <option value="">— Select Route —</option>
-                                    <option value="dhaka-coxsbazar">Dhaka → Cox's Bazar</option>
-                                    <option value="dhaka-rajshahi">Dhaka → Rajshahi</option>
-                                    <option value="dhaka-chittagong">Dhaka → Chittagong</option>
-                                    <option value="rajshahi-sylhet">Rajshahi → Sylhet</option>
+                                    {allRoutes.map((route) => (
+                                        <option key={route._id} value={route._id}>
+                                            {route?.routeName} - {route?.routeCode}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 
@@ -283,15 +337,15 @@ const AddBus = () => {
                                 <motion.button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    whileHover={{ scale: isSubmitting ? 1 : 1.03 }}
-                                    whileTap={{ scale: 0.97 }}
+                                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                     className={`
-                    w-full py-4 px-6 rounded-xl font-semibold text-white flex items-center justify-center gap-3 shadow-lg transition-all
-                    ${isSubmitting
+                                        w-full py-4 px-6 rounded-xl font-semibold text-white flex items-center justify-center gap-3 shadow-lg transition-all
+                                        ${isSubmitting
                                             ? 'bg-gray-600 cursor-not-allowed'
                                             : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700'
                                         }
-                  `}
+                                    `}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -299,7 +353,10 @@ const AddBus = () => {
                                             Adding Bus...
                                         </>
                                     ) : (
-                                        'Add Bus to Fleet'
+                                        <>
+                                            <Bus className="h-5 w-5" />
+                                            Add Bus to Fleet
+                                        </>
                                     )}
                                 </motion.button>
                             </div>

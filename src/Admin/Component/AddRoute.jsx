@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import AdminHeader from './AdminHeader';
+import useAllRoute from '../Hooks/useAllRoute';
 
 const API_BASE = import.meta.env.VITE_BASE_URL;
 
@@ -28,6 +29,7 @@ const AddRoute = () => {
     const [boardingPointsArray, setBoardingPointsArray] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const { routeRefetch } = useAllRoute();
 
     // ── Fetch all routes ────────────────────────────────────────
     const fetchRoutes = async () => {
@@ -117,6 +119,7 @@ const AddRoute = () => {
                     body: JSON.stringify(payload),
                 });
                 message = 'Route updated successfully!';
+
             } else {
                 // Create
                 res = await fetch(`${API_BASE}/routes`, {
@@ -135,6 +138,7 @@ const AddRoute = () => {
             toast.success(message, { icon: <CheckCircle2 className="text-green-500" /> });
             resetForm();
             fetchRoutes();
+            routeRefetch();
         } catch (err) {
             console.error(err);
             toast.error(err.message || 'Something went wrong');
