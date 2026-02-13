@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import useAllCountar from '../Hooks/useAllCountar';
+import useAllRoute from '../Hooks/useAllRoute';
 
 const AddNewCounter = () => {
     const [counterName, setCounterName] = useState('');
@@ -30,6 +31,7 @@ const AddNewCounter = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { refetch } = useAllCountar();
+    const { allRoutes, routeLoading } = useAllRoute();
 
     const startDate = new Date();
 
@@ -97,7 +99,14 @@ const AddNewCounter = () => {
         }
 
     };
-
+    // check loading------------>
+    if (loading || routeLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <Loader2 className="animate-spin text-emerald-500" />
+            </div>
+        )
+    }
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -241,9 +250,9 @@ const AddNewCounter = () => {
                                     required
                                 >
                                     <option value="">Select a route</option>
-                                    {routes.map((route) => (
-                                        <option key={route.value} value={route.value}>
-                                            {route.label}
+                                    {allRoutes.map((route) => (
+                                        <option key={route.routeName} value={route.routeName}>
+                                            {route.routeName} - {route.routeCode}
                                         </option>
                                     ))}
                                 </select>

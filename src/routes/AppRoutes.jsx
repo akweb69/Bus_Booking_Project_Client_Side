@@ -11,6 +11,7 @@ import SignIn from "@/Pages/SignIn";
 import SignUp from "@/Pages/SignUp";
 import Manage_Counter_Id from "@/Admin/Pages/Manage_Counter_Id";
 import NewAdminLayout from "@/Admin/MainLayout/NewAdminLayout";
+import CouterLayout from "@/Layouts/CouterLayout";
 
 const AppRoutes = () => {
     return (
@@ -31,10 +32,10 @@ const AppRoutes = () => {
             <Route path="/admin" element={<NewAdminLayout />} />
 
             {/* user Dashboard routes */}
-            <Route element={<UserLayout />}>
-                <Route path="/dashboard" element={<UserDash />} />
 
-            </Route>
+            <Route path="/dashboard" element={<CouterLayout />} />
+
+
 
             <Route path="*" element={<NotFound />} />
         </Routes>

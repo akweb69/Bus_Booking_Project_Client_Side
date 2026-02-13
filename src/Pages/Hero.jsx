@@ -76,106 +76,66 @@ const Hero = () => {
         }
     }
     return (
-        <div className="w-full min-h-screen relative ">
-            {/* background slideshow */}
-            <div className="absolute inset-0">
-                <img
-                    src={images[current]}
-                    alt="hero background"
-                    className="w-full h-full object-cover transition-all duration-1000"
-                />
+        <div className="flex justify-center items-center h-screen flex-col bg-gray-300">
+
+            {/* Top Header */}
+
+
+            {/* Login Box */}
+            <div className="bg-linear-to-b w-[500px] from-orange-400 to-orange-600 text-white text-sm font-semibold px-4 py-2">
+                Welcome to Paribahan Panel
             </div>
+            <div className="">
+                <div className="w-[500px] bg-gray-200 border-2 border-gray-600 p-8">
 
-            {/* overlay */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[5px]"></div>
 
-            {/* content */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl w-full">
+                    <h2 className="text-xl font-semibold text-gray-700 mb-6">
+                        Log in to Admin Panel
+                    </h2>
 
-                    {/* LEFT SIDE */}
-                    <div className="text-white flex flex-col justify-center">
-                        <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
-                            Bus Ticket <br />
-                            <span className="text-rose-400">Management System</span>
-                        </h1>
+                    <form onSubmit={handleSubmit} className="space-y-4">
 
-                        <p className="mt-4 text-gray-200 max-w-md leading-relaxed">
-                            This system is only for <b>Counter</b> and <b>Admin</b>.<br />
-                            Here you can manage ticket booking, seat management and trip control.
-                            <br />
-                        </p>
-
-                        <div className="mt-6 flex gap-4">
-                            <button className="px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 transition font-semibold">
-                                View Dashboard
-                            </button>
-                            <button className="px-6 py-3 rounded-xl border border-white/40 hover:bg-white/10 transition">
-                                Learn More
-                            </button>
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">
+                                User name:
+                            </label>
+                            <input
+                                type="text"
+                                onChange={(e) => setCounterCode(e.target.value)}
+                                className="w-[250px] border border-gray-500 px-2 py-1 bg-white"
+                            />
                         </div>
-                    </div>
 
-                    {/* RIGHT SIDE LOGIN */}
-                    <div className="flex justify-center items-center">
-                        <div className="w-full max-w-md p-8 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
-                            <h2 className="text-2xl font-semibold text-white text-center">
-                                Counter Login
-                            </h2>
-
-                            <p className="text-center text-gray-300 text-sm mt-2">
-                                Please login to your counter account
-                            </p>
-
-                            <form
-                                onSubmit={handleSubmit}
-                                className="mt-6 space-y-4">
-                                <input
-                                    onChange={(e) => setCounterCode(e.target.value)}
-                                    type="text"
-                                    placeholder="Counter Code"
-                                    className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-rose-400"
-                                />
-
-                                <div className="relative">
-                                    <input
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        type={`${showPassword ? "text" : "password"}`}
-                                        placeholder="Password"
-                                        className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-rose-400"
-                                    />
-                                    <span
-                                        className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-white hover:text-rose-400 transition"
-                                    >
-                                        {showPassword ? (
-                                            <EyeOffIcon onClick={() => setShowPassword(false)} />
-                                        ) : (
-                                            <Eye onClick={() => setShowPassword(true)} />
-                                        )}
-                                    </span>
-
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="w-full py-3 rounded-lg bg-rose-500 hover:bg-rose-600 transition text-white font-semibold"
-                                >
-                                    Login
-                                </button>
-                            </form>
-
-                            <p className="text-center text-gray-300 mt-4 text-sm">
-                                This login is only applicable for
-                                <span className="text-rose-400 font-semibold">
-                                    {" "}Counter & Admin
-                                </span>
-                            </p>
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">
+                                Password:
+                            </label>
+                            <input
+                                type="password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-[250px] border border-gray-500 px-2 py-1 bg-white"
+                            />
                         </div>
+
+                        <button
+                            type="submit"
+                            className="mt-4 px-4 py-1 border border-gray-600 bg-gray-300"
+                        >
+                            Login
+                        </button>
+
+                    </form>
+
+                    {/* Footer */}
+                    <div className="mt-10 pt-4 border-t border-gray-400 text-center text-xs text-gray-600">
+                        Copyright © Tobi Akaki Limited
                     </div>
 
                 </div>
             </div>
         </div>
+
+
     );
 };
 
