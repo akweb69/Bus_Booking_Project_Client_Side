@@ -126,3 +126,16 @@ html {
   max-width: 1650px;
   margin: 0 auto;
 }
+
+.seat {
+  padding: 4px;
+  background: #16a34a;
+  color: white;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.seat:hover {
+  background: #15803d;
+}

@@ -9,7 +9,9 @@ import { Eye, EyeOffIcon } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
 const images = [bg1, bg4, bg5];
+
 
 const Hero = () => {
     const [current, setCurrent] = useState(0);
@@ -90,14 +92,14 @@ const Hero = () => {
 
 
                     <h2 className="text-xl font-semibold text-gray-700 mb-6">
-                        Log in to Admin Panel
+                        Log in to Your Panel
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
 
                         <div>
                             <label className="block text-sm font-semibold mb-1">
-                                User name:
+                                User Id:
                             </label>
                             <input
                                 type="text"

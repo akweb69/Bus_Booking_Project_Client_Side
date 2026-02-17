@@ -10,13 +10,31 @@ import AddBus from '../Component/AddBus';
 import ManageBus from '../Component/ManageBus';
 import AddRoute from '../Component/AddRoute';
 import BookASeat from '../Component/BookASeat';
+import AdminBooking from '../Pages/AdminBooking';
+import useAllRoute from '../Hooks/useAllRoute';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
     const [activeContent, setActiveContent] = useState(6);
     const navigate = useNavigate();
 
+    // get all routes--->
+    const { routeLoading, allRoutes } = useAllRoute();
+    const [allBoardingPoints, setAllBoardingPoints] = useState([]);
+    const getAllBordingPoints = async () => {
+        const allRoutes0 = await allRoutes;
+        const allBoardingPoints = allRoutes0.map(route => route?.boardingPoints).map(point => point).join(", ");
+        console.log("=====================>", allBoardingPoints);
+        setAllBoardingPoints(allBoardingPoints);
+
+    }
+
+
+
+
+
     useEffect(() => {
+        getAllBordingPoints();
         const checkAdmin = async () => {
             const counterCode = localStorage.getItem('counterCode');
             const password = localStorage.getItem('password');
@@ -56,7 +74,7 @@ const NewAdminLayout = () => {
         checkAdmin();
     }, [navigate]);
 
-    if (loading) {
+    if (loading || routeLoading) {
         return (
             <div className="fixed inset-0 z-50 flex min-h-screen flex-col items-center justify-center bg-gray-50/80 backdrop-blur-sm dark:bg-gray-950/80">
                 <div className="relative">
@@ -86,12 +104,12 @@ const NewAdminLayout = () => {
                 {/* nav bar */}
                 <div className="w-full flex  gap-1 py-1">
                     {/* counter and admin management */}
-                    <Button onClick={() => setActiveContent(0)} className=" cursor-pointer">Add User</Button>
-                    <Button onClick={() => setActiveContent(1)} className=" cursor-pointer">Manage users </Button>
-                    <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-emerald-800">Add Bus</Button>
-                    <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-emerald-800">Manage Bus </Button>
-                    <Button onClick={() => setActiveContent(5)} className=" cursor-pointer bg-emerald-800"> Route </Button>
-                    <Button onClick={() => setActiveContent(6)} className=" cursor-pointer bg-emerald-800"> Book a seat </Button>
+                    <Button onClick={() => setActiveContent(0)} className=" cursor-pointer  bg-green-800">Add User</Button>
+                    <Button onClick={() => setActiveContent(1)} className=" cursor-pointer  bg-green-800">Manage users </Button>
+                    <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-green-800">Add Bus</Button>
+                    <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-green-800">Manage Bus </Button>
+                    <Button onClick={() => setActiveContent(5)} className=" cursor-pointer bg-green-800"> Route </Button>
+                    <Button onClick={() => setActiveContent(6)} className=" cursor-pointer bg-green-800"> Book a seat </Button>
 
 
 
@@ -119,7 +137,7 @@ const NewAdminLayout = () => {
                     activeContent === 5 && <AddRoute />
                 }
                 {
-                    activeContent === 6 && <BookASeat />
+                    activeContent === 6 && <AdminBooking boardingPoints={allBoardingPoints} />
                 }
 
             </div>

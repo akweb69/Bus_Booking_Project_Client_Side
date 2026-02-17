@@ -10,8 +10,8 @@ import {
     Lock,
     Eye,
     EyeOff,
-    Route as RouteIcon,
-    PlusCircle,
+    Bus,
+    Plus,
     Loader2,
     CheckCircle2,
 } from 'lucide-react';
@@ -20,143 +20,145 @@ import useAllCountar from '../Hooks/useAllCountar';
 import useAllRoute from '../Hooks/useAllRoute';
 
 const AddNewCounter = () => {
-    const [counterName, setCounterName] = useState('');
-    const [counterID, setCounterID] = useState('');
-    const [counterLocation, setCounterLocation] = useState('');
-    const [counterPassword, setCounterPassword] = useState('');
-    const [counterConfirmPassword, setCounterConfirmPassword] = useState('');
-    const [counterStatus, setCounterStatus] = useState('active');
-    const [selectedRoute, setSelectedRoute] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [form, setForm] = useState({
+        name: '',
+        id: '',
+        location: '',
+        password: '',
+        confirmPassword: '',
+        status: 'active',
+        route: '',
+    });
+
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
     const { refetch } = useAllCountar();
     const { allRoutes, routeLoading } = useAllRoute();
 
-    const startDate = new Date();
-
-    // Sample routes
-    const routes = [
-        { value: '11', label: 'রুট ১১' },
-        { value: '12', label: 'রুট ১২' },
-        { value: '23', label: 'রুট ২৩' },
-        { value: '45', label: 'রুট ৪৫' },
-    ];
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        toast.loading('কাউন্টার যোগ করা হচ্ছে...');
 
-        if (!counterName || !counterID || !counterLocation || !counterPassword || !counterConfirmPassword || !selectedRoute) {
-            toast.dismiss();
-            toast.error('সবগুলো ফিল্ড পূরণ করুন!');
+        if (Object.values(form).some((val) => !val && val !== 'active')) {
+            toast.error('Please fill in all required fields');
             return;
         }
 
-        if (counterPassword !== counterConfirmPassword) {
-            toast.dismiss();
-            toast.error('পাসওয়ার্ড মিলছে না!');
+        if (form.password !== form.confirmPassword) {
+            toast.error('Passwords do not match');
             return;
         }
 
-        setLoading(true);
+        setSubmitting(true);
+        const loadingToast = toast.loading('Creating counter...');
 
-        const formData = {
-            counterName,
-            counterID,
-            counterLocation,
-            password: counterPassword,
-            status: counterStatus,
-            selectedRoute,
-            createdAt: startDate.toISOString(),
-            role: 'counter',
-        };
+        try {
+            const payload = {
+                counterName: form.name.trim(),
+                counterID: form.id.trim(),
+                counterLocation: form.location.trim(),
+                password: form.password,
+                status: form.status,
+                selectedRoute: form.route,
+                createdAt: new Date().toISOString(),
+                role: 'counter',
+            };
 
-        const res = axios.post(`${import.meta.env.VITE_BASE_URL}/user`, formData);
-        if (res) {
-            toast.dismiss();
-            toast.success('successfully added a new counter', {
-                icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+            await axios.post(`${import.meta.env.VITE_BASE_URL}/user`, payload);
+
+            toast.dismiss(loadingToast);
+            toast.success('Counter created successfully', {
+                icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
             });
+
             refetch();
 
             // Reset form
-            setCounterName('');
-            setCounterID('');
-            setCounterLocation('');
-            setCounterPassword('');
-            setCounterConfirmPassword('');
-            setCounterStatus('active');
-            setSelectedRoute('');
-            setLoading(false);
-        }
-        else {
-            toast.dismiss();
-            toast.error('something went wrong', {
-                icon: <CheckCircle2 className="w-5 h-5 text-red-500" />,
+            setForm({
+                name: '',
+                id: '',
+                location: '',
+                password: '',
+                confirmPassword: '',
+                status: 'active',
+                route: '',
             });
-            setLoading(false);
+        } catch (err) {
+            toast.dismiss(loadingToast);
+            toast.error(err.response?.data?.message || 'Failed to create counter');
+        } finally {
+            setSubmitting(false);
         }
-
     };
-    // check loading------------>
-    if (loading || routeLoading) {
+
+    if (routeLoading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader2 className="animate-spin text-emerald-500" />
+            <div className="flex min-h-[60vh] items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
             </div>
-        )
+        );
     }
+
     return (
         <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="w-full  mx-auto mt-6"
+            className="mx-auto w-full max-w-3xl px-4 py-8"
         >
-            <div className="bg-white border border-emerald-100 rounded-3xl shadow-xl overflow-hidden">
-                {/* Header */}
-                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-10 text-white">
-                    <div className="flex items-center gap-4">
-                        <div className="p-4 bg-white/20 backdrop-blur-xl rounded-2xl">
-                            <PlusCircle className="w-10 h-10" />
+            <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+                {/* Header - very minimal */}
+                <div className="border-b bg-gray-50/80 px-6 py-5">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
+                            <Bus className="h-6 w-6" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold"> Added New Counter </h2>
-                            <p className="text-emerald-100 mt-1"> Fill out the form to add a new counter </p>
+                            <h1 className="text-xl font-semibold text-gray-900">Add New Counter</h1>
+                            <p className="mt-0.5 text-sm text-gray-500">
+                                Register a new ticket counter
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Counter Name */}
+                <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {/* Name */}
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter Name </label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Counter Name
+                            </label>
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <User className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
-                                    type="text"
-                                    value={counterName}
-                                    onChange={(e) => setCounterName(e.target.value)}
-                                    className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-zinc-400"
-                                    placeholder="Ex: মিরপুর কাউন্টার"
+                                    name="name"
+                                    value={form.name}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                    placeholder="e.g. Mirpur Counter"
                                     required
                                 />
                             </div>
                         </div>
 
-                        {/* Counter ID */}
+                        {/* ID */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter ID</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Counter ID
+                            </label>
                             <div className="relative">
-                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <Hash className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
-                                    type="text"
-                                    value={counterID}
-                                    onChange={(e) => setCounterID(e.target.value)}
-                                    className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-zinc-400"
+                                    name="id"
+                                    value={form.id}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                     placeholder="CTR-001"
                                     required
                                 />
@@ -165,15 +167,17 @@ const AddNewCounter = () => {
 
                         {/* Location */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Counter Location</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Location
+                            </label>
                             <div className="relative">
-                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
-                                    type="text"
-                                    value={counterLocation}
-                                    onChange={(e) => setCounterLocation(e.target.value)}
-                                    className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-zinc-400"
-                                    placeholder="মিরপুর-১০, ঢাকা"
+                                    name="location"
+                                    value={form.location}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                    placeholder="Mirpur-10, Dhaka"
                                     required
                                 />
                             </div>
@@ -181,78 +185,89 @@ const AddNewCounter = () => {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Add Password</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
-                                    value={counterPassword}
-                                    onChange={(e) => setCounterPassword(e.target.value)}
-                                    className="w-full pl-12 pr-12 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                                    name="password"
+                                    value={form.password}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                     placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
-                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
 
                         {/* Confirm Password */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Confirm Password</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Confirm Password
+                            </label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    value={counterConfirmPassword}
-                                    onChange={(e) => setCounterConfirmPassword(e.target.value)}
-                                    className="w-full pl-12 pr-12 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                                    type={showConfirm ? 'text' : 'password'}
+                                    name="confirmPassword"
+                                    value={form.confirmPassword}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                     placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                                    onClick={() => setShowConfirm(!showConfirm)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
-                                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Status */}
+                        {/* Status & Route */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Status</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Status
+                            </label>
                             <select
-                                value={counterStatus}
-                                onChange={(e) => setCounterStatus(e.target.value)}
-                                className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                                name="status"
+                                value={form.status}
+                                onChange={handleChange}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                             >
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
 
-                        {/* Route */}
                         <div>
-                            <label className="block text-sm font-semibold text-zinc-700 mb-2">Select Route</label>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                Route
+                            </label>
                             <div className="relative">
-                                <RouteIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                                <Bus className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <select
-                                    value={selectedRoute}
-                                    onChange={(e) => setSelectedRoute(e.target.value)}
-                                    className="w-full pl-12 pr-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none"
+                                    name="route"
+                                    value={form.route}
+                                    onChange={handleChange}
+                                    className="w-full appearance-none rounded-lg border border-gray-300 pl-10 pr-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                     required
                                 >
-                                    <option value="">Select a route</option>
-                                    {allRoutes.map((route) => (
-                                        <option key={route.routeName} value={route.routeName}>
-                                            {route.routeName} - {route.routeCode}
+                                    <option value="">Select route...</option>
+                                    {allRoutes?.map((r) => (
+                                        <option key={r.routeName} value={r.routeName}>
+                                            {r.routeName} — {r.routeCode}
                                         </option>
                                     ))}
                                 </select>
@@ -260,30 +275,37 @@ const AddNewCounter = () => {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
-                    <motion.button
-                        whileTap={{ scale: 0.97 }}
-                        disabled={loading}
-                        type="submit"
-                        className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-semibold text-lg py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-emerald-500/30"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="w-6 h-6 animate-spin" />
-                                Please wait adding counter...
-                            </>
-                        ) : (
-                            <>
-                                <PlusCircle className="w-6 h-6" />
-                                Add New Counter
-                            </>
-                        )}
-                    </motion.button>
+                    {/* Submit */}
+                    <div className="pt-4">
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className={`
+                flex w-full items-center justify-center gap-2 rounded-lg 
+                bg-emerald-600 px-6 py-3 font-medium text-white 
+                transition-colors hover:bg-emerald-700 
+                focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+                disabled:cursor-not-allowed disabled:bg-emerald-400
+              `}
+                        >
+                            {submitting ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                    Creating...
+                                </>
+                            ) : (
+                                <>
+                                    <Plus size={18} />
+                                    Create Counter
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </form>
             </div>
 
-            <p className="text-center text-zinc-400 text-sm my-6 ">
-                &copy; 2026 Security. All rights reserved.
+            <p className="mt-8 text-center text-sm text-gray-400">
+                © {new Date().getFullYear()} Transport Management
             </p>
         </motion.div>
     );
