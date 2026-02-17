@@ -78,8 +78,6 @@ const AddNewCounter = () => {
             });
 
             refetch();
-
-            // Reset form
             setForm({
                 name: '',
                 id: '',
@@ -91,7 +89,7 @@ const AddNewCounter = () => {
             });
         } catch (err) {
             toast.dismiss(loadingToast);
-            toast.error(err.response?.data?.message || 'Failed to create counter');
+            toast.error(err.response?.data?.message || 'Something went wrong');
         } finally {
             setSubmitting(false);
         }
@@ -99,215 +97,217 @@ const AddNewCounter = () => {
 
     if (routeLoading) {
         return (
-            <div className="flex min-h-[60vh] items-center justify-center">
+            <div className="flex min-h-[70vh] items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
             </div>
         );
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mx-auto w-full max-w-3xl px-4 py-8"
-        >
-            <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-                {/* Header - very minimal */}
-                <div className="border-b bg-gray-50/80 px-6 py-5">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
-                            <Bus className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-semibold text-gray-900">Add New Counter</h1>
-                            <p className="mt-0.5 text-sm text-gray-500">
-                                Register a new ticket counter
-                            </p>
+        <div className="min-h-screen bg-gray-50/70 pb-12 pt-6 sm:pt-10">
+            <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:max-w-2xl">
+                {/* Card */}
+                <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+                    {/* Header */}
+                    <div className="border-b bg-gray-50 px-5 py-6 sm:px-7 sm:py-7">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                                <Bus className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+                                    Add New Counter
+                                </h1>
+                                <p className="mt-1 text-sm text-gray-600">
+                                    Fill in the details for the new counter
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        {/* Name */}
-                        <div className="md:col-span-2">
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6 px-5 py-6 sm:px-7 sm:py-8">
+                        {/* Name - full width always */}
+                        <div>
                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Counter Name
+                                Counter Name <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
-                                <User className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                <User className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
                                     name="name"
                                     value={form.name}
                                     onChange={handleChange}
-                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                    className="w-full rounded-lg border border-gray-300 px-11 py-3 text-base placeholder-gray-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
                                     placeholder="e.g. Mirpur Counter"
                                     required
+                                    autoCapitalize="words"
                                 />
                             </div>
                         </div>
 
-                        {/* ID */}
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Counter ID
-                            </label>
-                            <div className="relative">
-                                <Hash className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    name="id"
-                                    value={form.id}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                                    placeholder="CTR-001"
-                                    required
-                                />
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            {/* Counter ID */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Counter ID <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <Hash className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        name="id"
+                                        value={form.id}
+                                        onChange={handleChange}
+                                        className="w-full rounded-lg border border-gray-300 px-11 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
+                                        placeholder="CTR-001"
+                                        required
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Location */}
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Location
-                            </label>
-                            <div className="relative">
-                                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    name="location"
-                                    value={form.location}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                                    placeholder="Mirpur-10, Dhaka"
-                                    required
-                                />
+                            {/* Location */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Location <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        name="location"
+                                        value={form.location}
+                                        onChange={handleChange}
+                                        className="w-full rounded-lg border border-gray-300 px-11 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
+                                        placeholder="e.g. Mirpur-10, Dhaka"
+                                        required
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Password */}
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    value={form.password}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                            {/* Password */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Password <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        value={form.password}
+                                        onChange={handleChange}
+                                        className="w-full rounded-lg border border-gray-300 px-11 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Confirm Password */}
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Confirm Password
-                            </label>
-                            <div className="relative">
-                                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type={showConfirm ? 'text' : 'password'}
-                                    name="confirmPassword"
-                                    value={form.confirmPassword}
-                                    onChange={handleChange}
-                                    className="w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowConfirm(!showConfirm)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                            {/* Confirm Password */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Confirm Password <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        type={showConfirm ? 'text' : 'password'}
+                                        name="confirmPassword"
+                                        value={form.confirmPassword}
+                                        onChange={handleChange}
+                                        className="w-full rounded-lg border border-gray-300 px-11 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirm(!showConfirm)}
+                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                                    >
+                                        {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Status & Route */}
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Status
-                            </label>
-                            <select
-                                name="status"
-                                value={form.status}
-                                onChange={handleChange}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Route
-                            </label>
-                            <div className="relative">
-                                <Bus className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                            {/* Status */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Status
+                                </label>
                                 <select
-                                    name="route"
-                                    value={form.route}
+                                    name="status"
+                                    value={form.status}
                                     onChange={handleChange}
-                                    className="w-full appearance-none rounded-lg border border-gray-300 pl-10 pr-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                                    required
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
                                 >
-                                    <option value="">Select route...</option>
-                                    {allRoutes?.map((r) => (
-                                        <option key={r.routeName} value={r.routeName}>
-                                            {r.routeName} — {r.routeCode}
-                                        </option>
-                                    ))}
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
                                 </select>
                             </div>
+
+                            {/* Route */}
+                            <div>
+                                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                    Route <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <Bus className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                    <select
+                                        name="route"
+                                        value={form.route}
+                                        onChange={handleChange}
+                                        className="w-full appearance-none rounded-lg border border-gray-300 px-11 py-3 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:py-2.5"
+                                        required
+                                    >
+                                        <option value="">Select route...</option>
+                                        {allRoutes?.map((r) => (
+                                            <option key={r.routeName} value={r.routeName}>
+                                                {r.routeName} — {r.routeCode}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Submit */}
-                    <div className="pt-4">
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className={`
-                flex w-full items-center justify-center gap-2 rounded-lg 
-                bg-emerald-600 px-6 py-3 font-medium text-white 
-                transition-colors hover:bg-emerald-700 
-                focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-                disabled:cursor-not-allowed disabled:bg-emerald-400
-              `}
-                        >
-                            {submitting ? (
-                                <>
-                                    <Loader2 className="h-5 w-5 animate-spin" />
-                                    Creating...
-                                </>
-                            ) : (
-                                <>
-                                    <Plus size={18} />
-                                    Create Counter
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </form>
+                        {/* Submit Button */}
+                        <div className="pt-4">
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className={`
+                  flex w-full items-center justify-center gap-2.5 rounded-lg 
+                  bg-emerald-600 px-6 py-3.5 text-base font-medium text-white 
+                  transition-colors hover:bg-emerald-700 focus:outline-none 
+                  focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+                  disabled:cursor-not-allowed disabled:bg-emerald-400
+                  sm:py-3
+                `}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus size={20} />
+                                        Add Counter
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
-
-            <p className="mt-8 text-center text-sm text-gray-400">
-                © {new Date().getFullYear()} Transport Management
-            </p>
-        </motion.div>
+        </div>
     );
 };
 
