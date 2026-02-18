@@ -17,11 +17,14 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
 
     const [openSeatStatusModal, setOpenSeatStatusModal] = useState(false);
 
+
+    const [showBookingDetails, setShowBookingDetails] = useState(false)
+
     const [existingBookings, setExistingBookings] = useState([]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [passengerInfo, setPassengerInfo] = useState({
         name: '',
-        mobile: '+88',
+        mobile: '',
         gender: 'Male',
         age: '',
         address: '',
@@ -39,6 +42,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
     // seat cancel active or inactive-------->
     const [bookingToCancel, setBookingToCancel] = useState(false);
 
+
     const allSeats = [
         'EX1', 'EX2', 'EX3', 'EX4', 'GD1',
         ...Array.from('ABCDEFGHI').flatMap(letter => [`${letter}1`, `${letter}2`, `${letter}3`, `${letter}4`]),
@@ -51,7 +55,19 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
     // get booking cancel active or not--------->
     useEffect(() => {
         const counterCode = localStorage.getItem('counterCode');
+
+        if (!counterCode) return;
+        // check user exits----->
+        axios.get(`${import.meta.env.VITE_BASE_URL}/user/check/${counterCode}`).then(res => {
+            if (res.status === 200) {
+                if (res.data.status === 'active' && res.data.role === 'counter' && res.data.canCancelBooking === true) {
+                    setBookingToCancel(true);
+                }
+            }
+        })
     }, [])
+
+
 
     useEffect(() => {
         fetchDashboardBookings();
@@ -66,7 +82,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
             if (!counterCode) return;
 
             const res = await axios.get(
-                `${import.meta.env.VITE_BASE_URL}/bookings/${counterCode}/${date}`
+                `${import.meta.env.VITE_BASE_URL}/bbbbbb/${counterCode}/${date}`
             );
 
             setDashboardExistingBookings(res.data);
@@ -130,14 +146,66 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
         return 'text-center p-2 rounded shadow bg-green-500 text-white cursor-pointer hover:bg-green-600';
     };
 
-
+    const [openBookingCancelModal, setOpenBookingCancelModal] = useState(false);
+    const [cancelSeatNumber, setCancelSeatNumber] = useState(null);
+    const [cancelLoading, setCancelLoading] = useState(false);
     const handleSeatClick = (seatNumber) => {
         const seatStatus = getSeatStatus(seatNumber);
-        if (seatStatus.status === 'booked') {
+
+        if (seatStatus.status === 'booked' && !bookingToCancel) {
             toast.error(`Seat ${seatNumber} ${seatStatus.gender} is already booked!`);
             return;
         }
+
+
+        if (seatStatus.status === 'booked' && bookingToCancel) {
+            setOpenBookingCancelModal(true);
+            setCancelSeatNumber(seatNumber);
+            console.log("seta cancle--->", seatNumber);
+            return;
+        }
         setSelectedSeats(selectedSeats.includes(seatNumber) ? selectedSeats.filter(s => s !== seatNumber) : [...selectedSeats, seatNumber]);
+    };
+    const handleConfirmCancel = async (seatNumber) => {
+        if (!seatNumber) return;
+
+        const booking = existingBookings.find(b => b.seatNumber === seatNumber);
+        if (!booking?._id) {
+            toast.error("Booking not found");
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to cancel seat ${seatNumber}?`)) return;
+
+        setCancelLoading(true);
+        const toastId = toast.loading("Cancelling ticket...");
+
+        try {
+            // Two common patterns — choose one:
+
+            // Option A: Soft delete / status change (recommended)
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/bookings/${booking._id}`);
+            // Option B: Hard delete (if you don't want to keep record)
+            // await axios.delete(`${import.meta.env.VITE_BASE_URL}/bookings/${booking._id}`);
+
+            toast.success(`Seat ${seatNumber} cancelled successfully`, { id: toastId });
+
+            // Refresh data
+            fetchBookings();
+            fetchDashboardBookings();
+
+            setOpenBookingCancelModal(false);
+            setCancelSeatNumber(null);
+        } catch (err) {
+            console.error(err);
+            toast.error(
+                err.response?.data?.message ||
+                "Failed to cancel ticket. Try again.",
+                { id: toastId }
+            );
+        } finally {
+            setCancelLoading(false);
+        }
     };
 
     const getBookingStats = () => {
@@ -166,7 +234,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
         const required = ['name', 'mobile', 'gender', 'age', 'boardingPoint', 'droppingPoint'];
         for (let field of required) if (!passengerInfo[field]?.trim()) { alert(`Please fill in ${field.toUpperCase()}`); return false; }
         if (selectedSeats.length === 0) { alert('Please select at least one seat'); return false; }
-        if (passengerInfo.mobile.length < 14) { alert('Please enter a valid mobile number'); return false; }
+        if (passengerInfo.mobile.length < 12) { alert('Please enter a valid mobile number'); return false; }
         return true;
     };
 
@@ -218,7 +286,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
         setSelectedSeats([]);
         setPassengerInfo({
             name: '',
-            mobile: '+88',
+            mobile: '',
             gender: 'Male',
             age: '',
             address: '',
@@ -288,6 +356,184 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
 
     return (
         <div className='w-full min-h-screen bg-gray-50'>
+            {openBookingCancelModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                        <h3 className="text-lg font-bold text-red-700 mb-4">
+                            Cancel Ticket – Seat {cancelSeatNumber}
+                        </h3>
+
+                        {(() => {
+                            const booking = existingBookings.find(b => b.seatNumber === cancelSeatNumber);
+                            return booking ? (
+                                <div className="mb-5 text-sm space-y-2">
+                                    <p><strong>Passenger:</strong> {booking.passengerName}</p>
+                                    <p><strong>Mobile:</strong> {booking.mobile}</p>
+                                    <p><strong>Gender:</strong> {booking.gender}</p>
+                                    <p><strong>Booked by:</strong> {booking.counterCode || 'Unknown'}</p>
+                                </div>
+                            ) : null;
+                        })()}
+
+                        <div className="mb-5">
+                            <label className="block text-sm font-medium mb-1">
+                                Reason (optional)
+                            </label>
+                            <textarea
+                                className="w-full border rounded p-2 text-sm min-h-[80px]"
+                                placeholder="যাত্রী আসেনি, ভুল বুকিং, অন্য কারণ..."
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setOpenBookingCancelModal(false);
+                                    setCancelSeatNumber(null);
+                                }}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                            >
+                                Close
+                            </button>
+
+                            <button
+                                onClick={() => handleConfirmCancel(cancelSeatNumber)}
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
+                            >
+                                {/* {cancelLoading && <Loader size={16} className="animate-spin" />} */}
+                                Cancel Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {
+                showBookingDetails && (
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6">
+                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col">
+
+                            {/* Header */}
+                            <div className="sticky top-0 bg-white border-b px-5 sm:px-8 py-4 flex items-center justify-between z-10">
+                                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                                    Booking Details
+                                </h2>
+                                <button
+                                    onClick={() => setShowBookingDetails(false)}
+                                    className="px-5 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-medium transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
+
+                            {/* Table Container */}
+                            <div className="overflow-x-auto overflow-y-auto flex-1">
+                                {existingBookings?.length > 0 ? (
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-100 sticky top-0 z-10">
+                                            <tr>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Bus
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Route & Date
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Counter Id
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Passenger
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Seat
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Boarding / Dropping
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Fare / Net
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Status
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {existingBookings.map((b, idx) => (
+                                                <tr key={b._id || idx} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-medium text-gray-900">
+                                                            {b.busName}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">{b.busNumber}</div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="text-sm text-gray-900">
+                                                            {b.fromLocation} → {b.toLocation}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">{b.travelDate}</div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="text-sm text-gray-900">
+                                                            {b?.counterCode}
+                                                        </div>
+
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="text-sm font-medium text-gray-900">
+                                                            {b.passengerName}
+                                                        </div>
+                                                        <div className="text-xs text-gray-600">
+                                                            {b.gender} • {b.age} yrs • {b.mobile}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {b.seatNumber}
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="text-sm text-gray-900">
+                                                            {b.boardingPoint}
+                                                        </div>
+                                                        <div className="text-xs text-gray-600">
+                                                            Drop: {b.droppingPoint}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4 whitespace-nowrap">
+                                                        <div className="text-sm text-gray-900">
+                                                            ৳{b.fare}
+                                                        </div>
+                                                        <div className="text-sm font-semibold text-green-700">
+                                                            ৳{b.netPay}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4 whitespace-nowrap">
+                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${b.status === 'confirmed'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-red-100 text-red-800'
+                                                            }`}>
+                                                            {b.status.toUpperCase()}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center text-gray-500 py-20">
+                                        No bookings found
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Optional footer - can show total bookings etc */}
+                            {existingBookings?.length > 0 && (
+                                <div className="border-t px-6 py-3 text-sm text-gray-600 bg-gray-50">
+                                    Showing {existingBookings.length} booking{existingBookings.length !== 1 ? 's' : ''}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
             {/* navbar */}
             <div className="w-full py-2 text-sm bg-green-700">
                 <div className="w-11/12 mx-auto flex gap-4 items-center justify-center">
@@ -470,7 +716,11 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                         REFRESH
                                     </div>
                                     <div className="rounded bg-rose-500 text-white text-xs p-2 px-3">TRIP SEATS</div>
-                                    <div className="rounded bg-rose-500 text-white text-xs p-2 px-3">SEAT STATUS</div>
+                                    <div
+                                        onClick={() => setShowBookingDetails(true)}
+
+
+                                        className="rounded cursor-pointer bg-rose-500 text-white text-xs p-2 px-3">SEAT STATUS</div>
                                 </div>
                                 <div className="bg-green-600 text-white text-xs p-2 uppercase text-center mt-1">Departure Status: @</div>
 
@@ -750,7 +1000,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Row 1 - Name & Mobile (Required) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
                                                         PASSENGER NAME <span className="text-red-500">*</span>:
                                                     </label>
                                                     <input
@@ -758,13 +1008,13 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                                         name="name"
                                                         value={passengerInfo.name}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
                                                         MOBILE <span className="text-red-500">*</span>:
                                                     </label>
                                                     <input
@@ -772,7 +1022,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                                         name="mobile"
                                                         value={passengerInfo.mobile}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     />
                                                 </div>
@@ -781,14 +1031,14 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Row 2 - Gender & Age (Required) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r font-bold border-gray-400">
+                                                    <label className="p-2 border-r font-bold border-gray-400">
                                                         GENDER <span className="text-red-500">*</span>:
                                                     </label>
                                                     <select
                                                         name="gender"
                                                         value={passengerInfo.gender}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     >
                                                         <option>Male</option>
@@ -797,7 +1047,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r font-bold border-gray-400">
+                                                    <label className="p-2 border-r font-bold border-gray-400">
                                                         AGE <span className="text-red-500">*</span>:
                                                     </label>
                                                     <input
@@ -805,7 +1055,7 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                                         name="age"
                                                         value={passengerInfo.age}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     />
                                                 </div>
@@ -813,37 +1063,37 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
 
                                             {/* Address (Optional) */}
                                             <div className="grid grid-cols-3 border-b border-gray-400">
-                                                <label className="p-1 border-r font-bold border-gray-400">ADDRESS :</label>
+                                                <label className="p-2 border-r font-bold border-gray-400">ADDRESS :</label>
                                                 <input
                                                     type="text"
                                                     name="address"
                                                     value={passengerInfo.address}
                                                     onChange={handleInputChange}
-                                                    className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                    className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                 />
                                             </div>
 
                                             {/* Passport + Nationality (Optional) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r font-bold border-gray-400">PASSPORT NO :</label>
+                                                    <label className="p-2 border-r font-bold border-gray-400">PASSPORT NO :</label>
                                                     <input
                                                         type="text"
                                                         name="passportNo"
                                                         value={passengerInfo.passportNo}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r font-bold border-gray-400">NATIONALITY :</label>
+                                                    <label className="p-2 border-r font-bold border-gray-400">NATIONALITY :</label>
                                                     <input
                                                         type="text"
                                                         name="nationality"
                                                         value={passengerInfo.nationality}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -852,24 +1102,24 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Boarding Place + Email (Optional) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">BOARDING PLACE :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">BOARDING PLACE :</label>
                                                     <input
                                                         type="text"
                                                         name="boardingPlace"
                                                         value={passengerInfo.boardingPlace}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">E-MAIL :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">E-MAIL :</label>
                                                     <input
                                                         type="email"
                                                         name="email"
                                                         value={passengerInfo.email}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -877,14 +1127,14 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Boarding Point + Dropping Point (Required) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
                                                         BOARDING POINT <span className="text-red-500">*</span>:
                                                     </label>
                                                     <select
                                                         name="boardingPoint"
                                                         value={passengerInfo.boardingPoint}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     >
                                                         <option value="">Select boarding point</option>
@@ -895,14 +1145,14 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
                                                         DROPPING POINT <span className="text-red-500">*</span>:
                                                     </label>
                                                     <select
                                                         name="droppingPoint"
                                                         value={passengerInfo.droppingPoint}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                         required
                                                     >
                                                         <option value="">Select dropping point</option>
@@ -916,23 +1166,23 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Goods + Gross Pay */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">GOODS :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">GOODS :</label>
                                                     <input
                                                         type="text"
                                                         name="goods"
                                                         value={passengerInfo.goods}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">GROSS PAY :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">GROSS PAY :</label>
                                                     <input
                                                         type="text"
                                                         value={`৳${fare.grossPay}`}
                                                         readOnly
-                                                        className="col-span-2 p-1 bg-gray-300 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-300 border outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -940,23 +1190,23 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Discount + Net Pay */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">DISCOUNT :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">DISCOUNT :</label>
                                                     <input
                                                         type="number"
                                                         name="discount"
                                                         value={passengerInfo.discount}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">NET PAY :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">NET PAY :</label>
                                                     <input
                                                         type="text"
                                                         value={`৳${fare.netPay}`}
                                                         readOnly
-                                                        className="col-span-2 p-1 bg-gray-300 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-300 border outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -964,36 +1214,36 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                                             {/* Total + Refund */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">TOTAL :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">TOTAL :</label>
                                                     <input
                                                         type="text"
                                                         value={`৳${fare.netPay}`}
                                                         readOnly
-                                                        className="col-span-2 p-1 bg-gray-300 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-300 border outline-none"
                                                     />
                                                 </div>
 
                                                 <div className="grid grid-cols-3">
-                                                    <label className="p-1 border-r border-gray-400 font-bold">REFUND :</label>
+                                                    <label className="p-2 border-r border-gray-400 font-bold">REFUND :</label>
                                                     <input
                                                         type="text"
                                                         defaultValue="0"
                                                         readOnly
-                                                        className="col-span-2 p-1 bg-gray-300 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-300 border outline-none"
                                                     />
                                                 </div>
                                             </div>
 
                                             {/* Payment (Required) */}
                                             <div className="grid grid-cols-3">
-                                                <label className="p-1 border-r font-bold border-gray-400">
+                                                <label className="p-2 border-r font-bold border-gray-400">
                                                     PAYMENT METHOD <span className="text-red-500">*</span>:
                                                 </label>
                                                 <select
                                                     name="paymentMethod"
                                                     value={passengerInfo.paymentMethod}
                                                     onChange={handleInputChange}
-                                                    className="col-span-2 p-1 bg-gray-200 border outline-none"
+                                                    className="col-span-2 p-2 bg-gray-200 border outline-none"
                                                     required
                                                 >
                                                     <option>Cash</option>
