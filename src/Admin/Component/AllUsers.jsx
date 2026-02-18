@@ -20,6 +20,8 @@ import {
     MapPin,
     ShieldCheck,
     UserCog,
+    CheckCircle2,
+    XCircle,
 } from 'lucide-react';
 import axios from 'axios';
 import useAllCountar from '../Hooks/useAllCountar';
@@ -82,8 +84,11 @@ const AllCounters = () => {
     };
 
     const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditForm((prev) => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setEditForm((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
     };
 
     const handleSave = async (e) => {
@@ -108,13 +113,15 @@ const AllCounters = () => {
             const payload = { ...editForm };
             if (newPassword) payload.password = newPassword;
 
+            // canCancelBooking is already in editForm (boolean)
+
             await axios.patch(`${baseUrl}/user/${selectedCounter._id}`, payload);
 
             toast.success('Counter updated successfully', { id: toastId });
             refetch();
             setIsEditOpen(false);
         } catch (err) {
-            toast.error('Update failed', { id: toastId });
+            toast.error(err.response?.data?.message || 'Update failed', { id: toastId });
             console.error(err);
         } finally {
             setSaving(false);
@@ -195,7 +202,7 @@ const AllCounters = () => {
                 </select>
             </div>
 
-            {/* Mobile Card View + Desktop Table */}
+            {/* Table / Cards */}
             <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
                 {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
@@ -207,13 +214,14 @@ const AllCounters = () => {
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Location</th>
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Role</th>
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Status</th>
+                                <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Can Cancel</th>
                                 <th className="px-5 py-3.5 text-right font-semibold text-gray-700">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentItems.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-16 text-center text-gray-500">
+                                    <td colSpan={7} className="py-16 text-center text-gray-500">
                                         No counters found
                                     </td>
                                 </tr>
@@ -225,9 +233,7 @@ const AllCounters = () => {
                                         <td className="px-5 py-4 text-gray-600">{c.counterLocation}</td>
                                         <td className="px-5 py-4">
                                             <span
-                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.role === 'admin'
-                                                    ? 'bg-purple-100 text-purple-800'
-                                                    : 'bg-blue-100 text-blue-800'
+                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 {c.role || 'counter'}
@@ -235,13 +241,26 @@ const AllCounters = () => {
                                         </td>
                                         <td className="px-5 py-4">
                                             <span
-                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'active'
-                                                    ? 'bg-emerald-100 text-emerald-800'
-                                                    : 'bg-rose-100 text-rose-800'
+                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                                                     }`}
                                             >
                                                 {c.status}
                                             </span>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <div className="flex items-center gap-1.5">
+                                                {c.canCancelBooking ? (
+                                                    <>
+                                                        <CheckCircle2 size={16} className="text-emerald-600" />
+                                                        <span className="font-medium text-emerald-700">Yes</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <XCircle size={16} className="text-rose-600" />
+                                                        <span className="text-gray-600">No</span>
+                                                    </>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-5 py-4 text-right">
                                             <button
@@ -317,6 +336,22 @@ const AllCounters = () => {
                                             >
                                                 {c.status}
                                             </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500">Can Cancel</div>
+                                        <div className="mt-0.5 flex items-center gap-1.5">
+                                            {c.canCancelBooking ? (
+                                                <>
+                                                    <CheckCircle2 size={14} className="text-emerald-600" />
+                                                    <span className="font-medium text-emerald-700">Yes</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <XCircle size={14} className="text-rose-600" />
+                                                    <span className="text-gray-600">No</span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -433,6 +468,27 @@ const AllCounters = () => {
                                             <option value="admin">Admin</option>
                                         </select>
                                     </div>
+                                </div>
+
+                                {/* ─── NEW FIELD: Can Cancel Booking ─── */}
+                                <div className="pt-2 border-t">
+                                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            name="canCancelBooking"
+                                            checked={editForm.canCancelBooking || false}
+                                            onChange={handleEditChange}
+                                            className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                        />
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-700 block">
+                                                Allow this counter to cancel bookings
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                                If enabled, this counter can cancel passenger tickets
+                                            </span>
+                                        </div>
+                                    </label>
                                 </div>
 
                                 <div className="border-t pt-5">
