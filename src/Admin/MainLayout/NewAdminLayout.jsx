@@ -106,18 +106,18 @@ const NewAdminLayout = () => {
                 {/* nav bar */}
                 <div className="w-full flex">
                     {/* counter and admin management */}
-                    <button onClick={() => setActiveContent(0)} className=" cursor-pointer  p-2 px-4 text-white border-r  bg-gray-500">Add User</button>
-                    <button onClick={() => setActiveContent(1)} className=" cursor-pointer  p-2 px-4 text-white border-r  bg-gray-500">Manage users </button>
-                    <button onClick={() => setActiveContent(3)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500">Add Bus</button>
-                    <button onClick={() => setActiveContent(4)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500">Manage Bus </button>
-                    <button onClick={() => setActiveContent(5)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Route </button>
+                    <button onClick={() => setActiveContent(0)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 0 ? "bg-green-700 text-white" : "bg-gray-500"}`}>Add User</button>
+                    <button onClick={() => setActiveContent(1)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 1 ? "bg-green-700 text-white" : "bg-gray-500"}`} > Manage users </button>
+                    <button onClick={() => setActiveContent(3)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 3 ? "bg-green-700 text-white" : "bg-gray-500"}`}>Add Bus</button>
+                    <button onClick={() => setActiveContent(4)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 4 ? "bg-green-700 text-white" : "bg-gray-500"}`}>Manage Bus </button>
+                    <button onClick={() => setActiveContent(5)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 5 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Route </button>
 
                     {/* 
                     <button onClick={() => setActiveContent(7)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Seat Plan </button> */}
 
-                    <button onClick={() => setActiveContent(8)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Analytics </button>
+                    <button onClick={() => setActiveContent(8)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 8 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Analytics </button>
 
-                    <button onClick={() => setActiveContent(6)} className=" cursor-pointer p-2 px-4 text-white border-r  bg-gray-500"> Book a seat </button>
+                    <button onClick={() => setActiveContent(6)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 6 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Book a seat </button>
 
 
 
@@ -152,7 +152,7 @@ const NewAdminLayout = () => {
                 }
 
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -595,65 +595,93 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
             }
 
             {/* navbar */}
-            <div className="w-full py-2 text-sm bg-green-700">
-                <div className="w-11/12 mx-auto flex gap-4 items-center justify-center">
-                    <div className="">
-                        <p className="text-white">Leaving from</p>
+            <div className="w-full py-3 text-sm bg-green-700">
+                <div className="w-11/12 mx-auto 
+                  grid grid-cols-1 
+                  sm:grid-cols-2 
+                  md:grid-cols-3 
+                  lg:grid-cols-6 
+                  gap-3 items-end">
+
+                    {/* Leaving from */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Leaving from</p>
                         <select
-                            onChange={(e) => handleLeavingFromChange(e)}
-                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                            onChange={handleLeavingFromChange}
+                            className="bg-white p-2 outline-none rounded w-full text-sm"
+                        >
                             <option value="">Select boarding point</option>
-                            {
-                                boardingPoints?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
-                            }
+                            {boardingPoints?.map((boardingPoint, index) => (
+                                <option key={index} value={boardingPoint}>
+                                    {boardingPoint}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Going to</p>
+                    {/* Going to */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Going to</p>
                         <select
-                            onChange={(e) => handleGoingToChange(e)}
-                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                            onChange={handleGoingToChange}
+                            className="bg-white p-2 outline-none rounded w-full text-sm"
+                        >
                             <option value="">Select Departing point</option>
-                            {
-                                boardingPoints?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
-                            }
+                            {boardingPoints?.map((boardingPoint, index) => (
+                                <option key={index} value={boardingPoint}>
+                                    {boardingPoint}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Coach</p>
+                    {/* Coach */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Coach</p>
                         <input
                             onChange={(e) => handleBusSelectWithBusCode(e.target.value)}
-                            className='bg-white p-1 rounded ' placeholder='Enter coach number' type="text" />
+                            className="bg-white p-2 rounded w-full text-sm"
+                            placeholder="Enter coach number"
+                            type="text"
+                        />
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Departing on</p>
+                    {/* Departing on */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Departing on</p>
                         <input
                             value={date}
                             onChange={handleDateChange}
-                            className='bg-white p-1 rounded'
+                            className="bg-white p-2 rounded w-full text-sm"
                             type="date"
                         />
                     </div>
-                    {/* password change option */}
-                    <div className="">
-                        <p className="text-white">Change your password</p>
-                        <div
+
+                    {/* Update Password */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Change your password</p>
+                        <button
                             onClick={() => setOpenUpdatePasswordModal(true)}
-                            className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">
+                            className="bg-rose-600 text-white w-full p-2 rounded hover:bg-rose-700 transition"
+                        >
                             Update Password
-                        </div>
+                        </button>
                     </div>
 
-                    {/* logout btn */}
-                    <div className="">
-                        <p className="text-rose-50">Back to login</p>
-                        <p onClick={hndlelogout} className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">Logout</p>
+                    {/* Logout */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Back to login</p>
+                        <button
+                            onClick={hndlelogout}
+                            className="bg-rose-600 text-white w-full p-2 rounded hover:bg-rose-700 transition"
+                        >
+                            Logout
+                        </button>
                     </div>
+
                 </div>
             </div>
+
 
             {
                 selectedBus?.length > 0 && <div className="w-11/12 mx-auto md:w-1/2 border p-4 shadow rounded">

@@ -390,7 +390,7 @@ const filterBuses = () => {
     if (busLoading) return <div className="w-full h-screen flex justify-center items-center"><div className="text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div><div className="text-sm">Loading buses...</div></div></div>;
 
     return (
-        <div className='w-full min-h-screen bg-gray-50'>
+        <div className='w-full min-h-screen bg-gray-50 -mt-4'>
             {openBookingCancelModal && (
                 <div className="fixed inset-0 bg-black/10 backdrop-blur-[5px] flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
@@ -603,84 +603,121 @@ const filterBuses = () => {
             }
 
             {/* navbar */}
-            <div className="w-full py-2 text-sm bg-green-700">
-                <div className="w-11/12 mx-auto flex gap-4 items-center justify-center">
-                    <div className="">
-                        <p className="text-white">Leaving from</p>
+            <div className="w-full py-3 text-sm bg-green-700">
+                <div className="w-11/12 mx-auto 
+                  grid grid-cols-1 
+                  sm:grid-cols-2 
+                  md:grid-cols-3 
+                  lg:grid-cols-6 
+                  gap-3 items-end">
+
+                    {/* Leaving from */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Leaving from</p>
                         <select
-                            onChange={(e) => handleLeavingFromChange(e)}
-                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                            onChange={handleLeavingFromChange}
+                            className="bg-white p-2 outline-none rounded w-full text-sm"
+                        >
                             <option value="">Select boarding point</option>
                             {
-                                boardingPoints.split(",")?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
+                                boardingPoints?.split(",")?.map((boardingPoint, index) => (
+                                    <option key={index} value={boardingPoint}>
+                                        {boardingPoint}
+                                    </option>
+                                ))
                             }
                         </select>
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Going to</p>
+                    {/* Going to */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Going to</p>
                         <select
-                            onChange={(e) => handleGoingToChange(e)}
-                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                            onChange={handleGoingToChange}
+                            className="bg-white p-2 outline-none rounded w-full text-sm"
+                        >
                             <option value="">Select Departing point</option>
                             {
-                                boardingPoints.split(",")?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
+                                boardingPoints?.split(",")?.map((boardingPoint, index) => (
+                                    <option key={index} value={boardingPoint}>
+                                        {boardingPoint}
+                                    </option>
+                                ))
                             }
                         </select>
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Coach</p>
+                    {/* Coach */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Coach</p>
                         <input
                             onChange={(e) => handleBusSelectWithBusCode(e.target.value)}
-                            className='bg-white p-1 rounded ' placeholder='Enter coach number' type="text" />
+                            className="bg-white p-2 rounded w-full text-sm"
+                            placeholder="Enter coach number"
+                            type="text"
+                        />
                     </div>
 
-                    <div className="">
-                        <p className="text-white">Departing on</p>
+                    {/* Date */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Departing on</p>
                         <input
                             value={date}
                             onChange={handleDateChange}
-                            className='bg-white p-1 rounded'
+                            className="bg-white p-2 rounded w-full text-sm"
                             type="date"
                         />
                     </div>
-                    {/* password change option */}
-                    <div className="">
-                        <p className="text-white">Change your password</p>
-                        <div
+
+                    {/* Update password */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Change password</p>
+                        <button
                             onClick={() => setOpenUpdatePasswordModal(true)}
-                            className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">
+                            className="text-white bg-rose-600 w-full p-2 rounded hover:bg-rose-700 transition"
+                        >
                             Update Password
-                        </div>
+                        </button>
                     </div>
 
-                    {/* logout btn */}
-                    <div className="">
-                        <p className="text-rose-50">Back to login</p>
-                        <p onClick={hndlelogout} className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">Logout</p>
+                    {/* Logout */}
+                    <div className="w-full">
+                        <p className="text-white text-xs sm:text-sm">Back to login</p>
+                        <button
+                            onClick={hndlelogout}
+                            className="text-white bg-rose-600 w-full p-2 rounded hover:bg-rose-700 transition"
+                        >
+                            Logout
+                        </button>
                     </div>
+
                 </div>
             </div>
 
-            {
-                selectedBus?.length > 0 && <div className="w-11/12 mx-auto md:w-1/2 border p-4 shadow rounded">
-                    <div className="w-full bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-                        <div className="w-full bg-white border border-gray-300 rounded-md overflow-hidden">
-                            {/* Header */}
-                            <div className="grid grid-cols-12 bg-gray-100 text-gray-700 text-sm font-semibold px-4 py-2 border-b">
-                                <div className="col-span-3">Bus</div>
-                                <div className="col-span-3">Route</div>
-                                <div className="col-span-2">Fare</div>
-                                <div className="col-span-2">Couch Number</div>
-                                <div className="col-span-2 text-right">Action</div>
-                            </div>
 
-                            {selectedBus?.map((bus, index) => (
-                                <div
-                                    key={index}
-                                    className="grid grid-cols-12 items-center px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 text-sm"
-                                >
+            {
+                selectedBus?.length > 0 &&
+                <div className="w-11/12 mx-auto lg:w-8/12 border p-3 sm:p-4 shadow rounded">
+
+                    <div className="w-full bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+
+                        {/* Desktop Header */}
+                        <div className="hidden md:grid grid-cols-12 bg-gray-100 text-gray-700 text-sm font-semibold px-4 py-3 border-b">
+                            <div className="col-span-3">Bus</div>
+                            <div className="col-span-3">Route</div>
+                            <div className="col-span-2">Fare</div>
+                            <div className="col-span-2">Coach Number</div>
+                            <div className="col-span-2 text-right">Action</div>
+                        </div>
+
+
+                        {selectedBus?.map((bus, index) => (
+
+                            <div key={index}>
+
+                                {/* Desktop Row */}
+                                <div className="hidden md:grid grid-cols-12 items-center px-4 py-3 border-b hover:bg-gray-50 text-sm">
+
                                     <div className="col-span-3 font-medium text-gray-800">
                                         {bus.busName}
                                     </div>
@@ -700,15 +737,49 @@ const filterBuses = () => {
                                     <div className="col-span-2 text-right">
                                         <button
                                             onClick={() => handleOpenBusDetails(bus)}
-                                            className="border border-gray-400 px-3 py-1 rounded text-gray-700 transition cursor-pointer hover:bg-rose-500 hover:text-white">
+                                            className="border border-gray-400 px-3 py-1 rounded text-gray-700 transition cursor-pointer hover:bg-rose-500 hover:text-white"
+                                        >
                                             Book a Seat
                                         </button>
                                     </div>
+
                                 </div>
-                            ))}
-                        </div>
+
+
+                                {/* Mobile Card */}
+                                <div className="md:hidden border-b p-3 space-y-2">
+
+                                    <div className="flex justify-between">
+                                        <span className="font-semibold">{bus.busName}</span>
+                                        <span className="text-gray-500">{bus.busNumber}</span>
+                                    </div>
+
+                                    <div className="text-gray-600 text-sm">
+                                        Route: {bus.fromLocation} → {bus.toLocation}
+                                    </div>
+
+                                    <div className="text-gray-700 font-medium">
+                                        Fare: ৳ {bus.perSeatFees}
+                                    </div>
+
+                                    <button
+                                        onClick={() => handleOpenBusDetails(bus)}
+                                        className="w-full border border-gray-400 py-2 rounded text-gray-700 transition hover:bg-rose-500 hover:text-white"
+                                    >
+                                        Book a Seat
+                                    </button>
+
+                                </div>
+
+
+                            </div>
+
+                        ))}
+
                     </div>
+
                 </div>
+
             }
 
             {/* show bus details--------> */}
@@ -1216,7 +1287,7 @@ const filterBuses = () => {
                                                         required
                                                     >
                                                         <option value="">Select boarding point</option>
-                                                        {boardingPoints.split(",")?.map((point, idx) => (
+                                                        {boardingPoints?.split(",")?.map((point, idx) => (
                                                             <option key={idx} value={point}>{point}</option>
                                                         ))}
                                                     </select>
@@ -1234,7 +1305,7 @@ const filterBuses = () => {
                                                         required
                                                     >
                                                         <option value="">Select dropping point</option>
-                                                        {boardingPoints.split(",")?.map((point, idx) => (
+                                                        {boardingPoints?.split(",")?.map((point, idx) => (
                                                             <option key={idx} value={point}>{point}</option>
                                                         ))}
                                                     </select>
