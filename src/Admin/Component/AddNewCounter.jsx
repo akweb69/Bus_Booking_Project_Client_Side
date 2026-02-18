@@ -28,6 +28,7 @@ const AddNewCounter = () => {
         confirmPassword: '',
         status: 'active',
         route: '',
+        canCancelBooking: false,          // ← NEW FIELD
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -38,14 +39,19 @@ const AddNewCounter = () => {
     const { allRoutes, routeLoading } = useAllRoute();
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (Object.values(form).some((val) => !val && val !== 'active')) {
+        // Check required fields (excluding checkbox)
+        const requiredFields = ['name', 'id', 'location', 'password', 'confirmPassword', 'route'];
+        if (requiredFields.some(field => !form[field]?.toString().trim())) {
             toast.error('Please fill in all required fields');
             return;
         }
@@ -66,6 +72,7 @@ const AddNewCounter = () => {
                 password: form.password,
                 status: form.status,
                 selectedRoute: form.route,
+                canCancelBooking: form.canCancelBooking,     // ← NEW FIELD sent to backend
                 createdAt: new Date().toISOString(),
                 role: 'counter',
             };
@@ -86,6 +93,7 @@ const AddNewCounter = () => {
                 confirmPassword: '',
                 status: 'active',
                 route: '',
+                canCancelBooking: false,
             });
         } catch (err) {
             toast.dismiss(loadingToast);
@@ -127,7 +135,7 @@ const AddNewCounter = () => {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-6 px-5 py-6 sm:px-7 sm:py-8">
-                        {/* Name - full width always */}
+                        {/* Name */}
                         <div>
                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
                                 Counter Name <span className="text-red-500">*</span>
@@ -276,8 +284,27 @@ const AddNewCounter = () => {
                             </div>
                         </div>
 
+                        {/* NEW FIELD - Checkbox */}
+                        <div className="pt-2">
+                            <label className="flex items-center gap-3 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    name="canCancelBooking"
+                                    checked={form.canCancelBooking}
+                                    onChange={handleChange}
+                                    className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Counter is allowed to cancel bookings
+                                </span>
+                            </label>
+                            <p className="mt-1 ml-8 text-xs text-gray-500">
+                                If checked, this counter can cancel passenger bookings
+                            </p>
+                        </div>
+
                         {/* Submit Button */}
-                        <div className="pt-4">
+                        <div className="pt-6">
                             <button
                                 type="submit"
                                 disabled={submitting}
@@ -305,11 +332,9 @@ const AddNewCounter = () => {
                         </div>
                     </form>
                 </div>
-
             </div>
         </div>
     );
 };
 
 export default AddNewCounter;
-

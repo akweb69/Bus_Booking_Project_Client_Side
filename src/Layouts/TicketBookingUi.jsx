@@ -36,6 +36,9 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
         paymentMethod: 'Cash'
     });
 
+    // seat cancel active or inactive-------->
+    const [bookingToCancel, setBookingToCancel] = useState(false);
+
     const allSeats = [
         'EX1', 'EX2', 'EX3', 'EX4', 'GD1',
         ...Array.from('ABCDEFGHI').flatMap(letter => [`${letter}1`, `${letter}2`, `${letter}3`, `${letter}4`]),
@@ -43,6 +46,12 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
     ];
     const [dashboardExistingBookings, setDashboardExistingBookings] = useState([]);
     const [todaysSells, setTodaysSells] = useState(0);
+
+
+    // get booking cancel active or not--------->
+    useEffect(() => {
+        const counterCode = localStorage.getItem('counterCode');
+    }, [])
 
     useEffect(() => {
         fetchDashboardBookings();
