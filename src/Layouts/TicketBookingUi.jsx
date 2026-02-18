@@ -137,13 +137,13 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
             // console.log("--------->", seatStatus.gender);
 
             return seatStatus.gender === 'Male'
-                ? 'text-center p-2 rounded shadow  bg-blue-600 text-white cursor-not-allowed  '
-                : 'text-center p-2 rounded shadow bg-pink-500 text-white cursor-not-allowed ';
+                ? 'text-center p-2 rounded shadow  bg-blue-700 text-white cursor-not-allowed  '
+                : 'text-center p-2 rounded shadow bg-pink-700 text-white cursor-not-allowed ';
 
         if (seatStatus?.status === 'selected')
-            return 'text-center p-2 rounded shadow bg-yellow-400 text-black cursor-pointer border-2 border-yellow-600 ';
+            return 'text-center p-2 rounded shadow bg-yellow-700 text-black cursor-pointer border-2 border-yellow-600 ';
 
-        return 'text-center p-2 rounded shadow bg-green-500 text-white cursor-pointer hover:bg-green-600';
+        return 'text-center p-2 rounded shadow bg-green-700 text-white cursor-pointer hover:bg-green-600';
     };
 
     const [openBookingCancelModal, setOpenBookingCancelModal] = useState(false);
@@ -351,13 +351,40 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
         setSelectedBus(res1);
     }
 
+    const [openUpdatePasswordModal, setOpenUpdatePasswordModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const hndleUpdatePasswaord = async () => {
+        const finalData = { password: newPassword }
+        const countercode = localStorage.getItem('counterCode');
+
+
+        if (newPassword !== confirmNewPassword) {
+            toast.error('Passwords do not match');
+            return;
+        }
+
+        const res = await axios.patch(`${import.meta.env.VITE_BASE_URL}/user/update/${countercode}`, finalData);
+        if (res) {
+            toast.success('Password updated successfully');
+            localStorage.clear();
+            navigate('/');
+            setOpenUpdatePasswordModal(false);
+        }
+        else {
+            toast.error('Failed to update password');
+        }
+
+    }
+
+
     // ---------- Render (UI unchanged) ----------
     if (busLoading) return <div className="w-full h-screen flex justify-center items-center"><div className="text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div><div className="text-sm">Loading buses...</div></div></div>;
 
     return (
         <div className='w-full min-h-screen bg-gray-50'>
             {openBookingCancelModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/10 backdrop-blur-[5px] flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                         <h3 className="text-lg font-bold text-red-700 mb-4">
                             Cancel Ticket – Seat {cancelSeatNumber}
@@ -534,6 +561,39 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                     </div>
                 )
             }
+            {
+                openUpdatePasswordModal && (
+                    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50">
+
+                        <div className="max-w-2xl w-full p-4 bg-white rounded">
+                            <div className="">
+                                <p className="">New Password</p>
+                                <input
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    type="text" className='w-full bg-white border rounded p-2' placeholder='Enter New Password' />
+                            </div>
+                            <div className="">
+                                <p className="">Confirm New Password</p>
+                                <input
+                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                    type="text" className='w-full bg-white border rounded p-2' placeholder='Enter Again Password' />
+                            </div>
+
+                            {/* confirm and cancel btns */}
+                            <div className="flex items-center justify-end gap-2 mt-4">
+                                <button
+                                    onClick={() => hndleUpdatePasswaord()}
+                                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">Update</button>
+                                <button
+                                    onClick={() => setOpenUpdatePasswordModal(false)}
+                                    className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded">Cancel</button>
+                            </div>
+                        </div>
+
+                    </div>
+                )
+            }
+
             {/* navbar */}
             <div className="w-full py-2 text-sm bg-green-700">
                 <div className="w-11/12 mx-auto flex gap-4 items-center justify-center">
@@ -576,6 +636,15 @@ const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
                             className='bg-white p-1 rounded'
                             type="date"
                         />
+                    </div>
+                    {/* password change option */}
+                    <div className="">
+                        <p className="text-white">Change your password</p>
+                        <div
+                            onClick={() => setOpenUpdatePasswordModal(true)}
+                            className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">
+                            Update Password
+                        </div>
                     </div>
 
                     {/* logout btn */}

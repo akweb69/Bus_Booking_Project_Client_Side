@@ -12,6 +12,7 @@ import AddRoute from '../Component/AddRoute';
 import BookASeat from '../Component/BookASeat';
 import AdminBooking from '../Pages/AdminBooking';
 import useAllRoute from '../Hooks/useAllRoute';
+import Analytics from '../Pages/Analytics';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
@@ -20,12 +21,13 @@ const NewAdminLayout = () => {
 
     // get all routes--->
     const { routeLoading, allRoutes } = useAllRoute();
-    const [allBoardingPoints, setAllBoardingPoints] = useState([]);
+    const [allBoardingPoints, setAllBoardingPoints] = useState(null);
     const getAllBordingPoints = async () => {
         const allRoutes0 = await allRoutes;
         const allBoardingPoints = allRoutes0.map(route => route?.boardingPoints).map(point => point).join(", ");
         console.log("=====================>", allBoardingPoints);
         setAllBoardingPoints(allBoardingPoints);
+        console.log(allBoardingPoints);
 
     }
 
@@ -110,7 +112,9 @@ const NewAdminLayout = () => {
                     <button onClick={() => setActiveContent(4)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500">Manage Bus </button>
                     <button onClick={() => setActiveContent(5)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Route </button>
 
-                    <button onClick={() => setActiveContent(7)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Seat Plan </button>
+                    {/* 
+                    <button onClick={() => setActiveContent(7)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Seat Plan </button> */}
+
                     <button onClick={() => setActiveContent(8)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Analytics </button>
 
                     <button onClick={() => setActiveContent(6)} className=" cursor-pointer p-2 px-4 text-white border-r  bg-gray-500"> Book a seat </button>
@@ -139,6 +143,9 @@ const NewAdminLayout = () => {
                 }
                 {
                     activeContent === 5 && <AddRoute />
+                }
+                {
+                    activeContent === 8 && <Analytics />
                 }
                 {
                     activeContent === 6 && <AdminBooking boardingPoints={allBoardingPoints} />
