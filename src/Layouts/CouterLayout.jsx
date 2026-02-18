@@ -14,6 +14,7 @@ const CouterLayout = () => {
     const { routeLoading, allRoutes } = useAllRoute();
     const [allBoardingPoints, setAllBoardingPoints] = useState([]);
     const [showtab, setShowTab] = useState(true);
+    const [activeRoute, setActiveRoute] = useState(null);
 
     const handleLogout = () => {
         localStorage.clear();
@@ -34,6 +35,8 @@ const CouterLayout = () => {
                         r => r?.routeName === data?.selectedRoute
 
                     );
+                    setActiveRoute(data?.selectedRoute);
+
                     console.log(selectedRoute.boardingPoints);
                     setAllBoardingPoints(selectedRoute.boardingPoints || []);
 
@@ -176,7 +179,7 @@ const CouterLayout = () => {
 
 
 
-                    <TicketBookingUi boardingPoints={allBoardingPoints} />
+                    <TicketBookingUi boardingPoints={allBoardingPoints} activeRoute={activeRoute} />
 
 
                 </div>

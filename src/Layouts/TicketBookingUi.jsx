@@ -2,9 +2,14 @@ import useAllBuses from '@/Admin/Hooks/useAllBuses';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import useAllRoute from '@/Admin/Hooks/useAllRoute';
+import { useNavigate } from 'react-router-dom';
 
-const TicketBookingUi = ({ boardingPoints }) => {
+const TicketBookingUi = ({ boardingPoints, activeRoute }) => {
+
+    const navigate = useNavigate();
     const { busLoading, allBuses } = useAllBuses();
+    const { allRoutes } = useAllRoute();
     const [selectedBus, setSelectedBus] = useState([]);
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [showBusDetails, setShowBusDetails] = useState(false);
@@ -36,11 +41,47 @@ const TicketBookingUi = ({ boardingPoints }) => {
         ...Array.from('ABCDEFGHI').flatMap(letter => [`${letter}1`, `${letter}2`, `${letter}3`, `${letter}4`]),
         'J1', 'J2', 'J3', 'J4', 'J5'
     ];
+    const [dashboardExistingBookings, setDashboardExistingBookings] = useState([]);
+    const [todaysSells, setTodaysSells] = useState(0);
+
+    useEffect(() => {
+        fetchDashboardBookings();
+    }, [date]);
+
+    const fetchDashboardBookings = async () => {
+
+        try {
+
+            const counterCode = localStorage.getItem('counterCode');
+
+            if (!counterCode) return;
+
+            const res = await axios.get(
+                `${import.meta.env.VITE_BASE_URL}/bookings/${counterCode}/${date}`
+            );
+
+            setDashboardExistingBookings(res.data);
+            setTodaysSells(res.data.length);
+
+            console.log("Dashboard bookings:", res.data);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    };
+
+
 
     // Fetch bookings when bus or date changes
     useEffect(() => {
         if (detailsBus && date) fetchBookings();
     }, [detailsBus, date]);
+
+
+
 
     const fetchBookings = async () => {
         try {
@@ -53,6 +94,8 @@ const TicketBookingUi = ({ boardingPoints }) => {
             setExistingBookings([]);
         }
     };
+
+
 
     const getSeatStatus = (seatNumber) => {
         const booking = existingBookings.find(b => b.seatNumber === seatNumber);
@@ -147,13 +190,15 @@ const TicketBookingUi = ({ boardingPoints }) => {
                     netPay: fare.netPay / selectedSeats.length,
                     paymentMethod: passengerInfo.paymentMethod,
                     bookingDate: new Date().toISOString(),
-                    status: 'confirmed'
+                    status: 'confirmed',
+                    counterCode: localStorage.getItem('counterCode')
                 };
                 await axios.post(`${import.meta.env.VITE_BASE_URL}/bookings`, booking);
             }
             alert(`Successfully booked ${selectedSeats.length} seat(s)!`);
             handleReset();
             fetchBookings();
+            fetchDashboardBookings();
         } catch (error) {
             console.error('Error booking seats:', error);
             alert(error.response?.data?.error || 'Failed to book seats. Please try again.');
@@ -182,11 +227,24 @@ const TicketBookingUi = ({ boardingPoints }) => {
 
     const handleRemoveSeat = (seat) => setSelectedSeats(selectedSeats.filter(s => s !== seat));
 
-    const handleBusSelectWithBusCode = (busCode) => {
+    const handleBusSelectWithBusCode = async (busCode) => {
+        const myRoute = await allRoutes?.find(r => r.routeName === activeRoute);
         if (!busCode.trim()) { setSelectedBus([]); return; }
         const res0 = allBuses.filter(bus => bus.busNumber.toLowerCase().includes(busCode.toLowerCase()));
-        setSelectedBus(res0);
+        const res1 = res0.filter(b => b.route === myRoute?._id);
+        setSelectedBus(res1);
     };
+
+    const hndlelogout = () => {
+        toast.loading('Logging out...');
+        localStorage.clear();
+        navigate('/');
+        window.location.reload();
+        toast.dismiss();
+        toast.success('Successfully logged out');
+
+    }
+
 
     const handleOpenBusDetails = (bus) => {
         setShowBusDetails(true);
@@ -200,6 +258,22 @@ const TicketBookingUi = ({ boardingPoints }) => {
         setSelectedSeats([]);
     };
 
+    // const leaving form ------>
+    const handleLeavingFromChange = async (e) => {
+        const leavingForm = (e.target.value);
+        const myRoute = await allRoutes?.find(r => r.routeName === activeRoute);
+        const filterBuses = allBuses.filter(bus => bus.fromLocation === leavingForm);
+        const res1 = filterBuses.filter(b => b.route === myRoute?._id);
+        setSelectedBus(res1);
+    }
+    const handleGoingToChange = async (e) => {
+        const goingTo = (e.target.value);
+        const myRoute = await allRoutes?.find(r => r.routeName === activeRoute);
+        const filterBuses = allBuses.filter(bus => bus.toLocation === goingTo);
+        const res1 = filterBuses.filter(b => b.route === myRoute?._id);
+        setSelectedBus(res1);
+    }
+
     // ---------- Render (UI unchanged) ----------
     if (busLoading) return <div className="w-full h-screen flex justify-center items-center"><div className="text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div><div className="text-sm">Loading buses...</div></div></div>;
 
@@ -210,7 +284,9 @@ const TicketBookingUi = ({ boardingPoints }) => {
                 <div className="w-11/12 mx-auto flex gap-4 items-center justify-center">
                     <div className="">
                         <p className="text-white">Leaving from</p>
-                        <select className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                        <select
+                            onChange={(e) => handleLeavingFromChange(e)}
+                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
                             <option value="">Select boarding point</option>
                             {
                                 boardingPoints?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
@@ -220,7 +296,9 @@ const TicketBookingUi = ({ boardingPoints }) => {
 
                     <div className="">
                         <p className="text-white">Going to</p>
-                        <select className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
+                        <select
+                            onChange={(e) => handleGoingToChange(e)}
+                            className='bg-white p-1 outline-none rounded min-w-30' name="" id="">
                             <option value="">Select Departing point</option>
                             {
                                 boardingPoints?.map((boardingPoint, index) => <option key={index} value={boardingPoint}>{boardingPoint}</option>)
@@ -243,6 +321,12 @@ const TicketBookingUi = ({ boardingPoints }) => {
                             className='bg-white p-1 rounded'
                             type="date"
                         />
+                    </div>
+
+                    {/* logout btn */}
+                    <div className="">
+                        <p className="text-rose-50">Back to login</p>
+                        <p onClick={hndlelogout} className="text-white p-1 bg-rose-600 h-full rounded text-center cursor-pointer">Logout</p>
                     </div>
                 </div>
             </div>
@@ -755,6 +839,7 @@ const TicketBookingUi = ({ boardingPoints }) => {
                                                 </div>
                                             </div>
 
+
                                             {/* Boarding Place + Email (Optional) */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
                                                 <div className="grid grid-cols-3 border-r border-gray-400">
@@ -937,17 +1022,38 @@ const TicketBookingUi = ({ boardingPoints }) => {
 
             {/* dashboard content------> */}
             {
-                !selectedBus && !showBusDetails && <div className="w-80 mx-auto border mt-4">
-                    {
-                        dashData?.map(i =>
-                            <div key={i.title} className="">
-                                <p className="w-full bg-gray-500 text-white p-2 text-sm font-medium">{i.title}</p>
-                                <div className="w-full flex justify-center items-center p-6 bg-gray-100">
-                                    <p className="text-xl md:text-2xl font-medium">{i.value}</p>
-                                </div>
-                            </div>
-                        )
-                    }
+                !selectedBus || !showBusDetails && <div className="w-80 mx-auto border mt-6 ">
+                    {/* todays date */}
+                    <div className="w-full p-2 bg-gray-500 text-white">Date</div>
+                    <div className="p-4 flex justify-center items-center text-2xl">
+                        {date}
+                    </div>
+
+                    <div className="w-full  border ">
+                        <div className="w-full p-2 bg-gray-500 text-white">Todays Sells</div>
+                        <div className="p-4 flex justify-center items-center text-2xl">
+                            {todaysSells}
+                        </div>
+                    </div>
+                    <div className="w-full  border ">
+                        <div className="w-full p-2 bg-gray-500 text-white">Todays Online Sells</div>
+                        <div className="p-4 flex justify-center items-center text-2xl">
+                            0
+                        </div>
+                    </div>
+                    <div className="w-full  border ">
+                        <div className="w-full p-2 bg-gray-500 text-white">Todays Online Ticket Sells</div>
+                        <div className="p-4 flex justify-center items-center text-2xl">
+                            {todaysSells}
+                        </div>
+                    </div>
+                    <div className="w-full  border ">
+                        <div className="w-full p-2 bg-gray-500 text-white">Todays Total Sells</div>
+                        <div className="p-4 flex justify-center items-center text-2xl">
+                            {dashboardExistingBookings?.reduce((total, booking) => total + booking.netPay, 0)} TK
+                        </div>
+                    </div>
+
                 </div>
             }
         </div>

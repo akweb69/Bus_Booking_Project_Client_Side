@@ -102,19 +102,23 @@ const NewAdminLayout = () => {
         <div className="w-full bg-gray-50 min-h-screen text-sm ">
             <div className="px-4  border-b border-gray-200 bg-white">
                 {/* nav bar */}
-                <div className="w-full flex  gap-1 py-1">
+                <div className="w-full flex">
                     {/* counter and admin management */}
-                    <Button onClick={() => setActiveContent(0)} className=" cursor-pointer  bg-green-800">Add User</Button>
-                    <Button onClick={() => setActiveContent(1)} className=" cursor-pointer  bg-green-800">Manage users </Button>
-                    <Button onClick={() => setActiveContent(3)} className=" cursor-pointer bg-green-800">Add Bus</Button>
-                    <Button onClick={() => setActiveContent(4)} className=" cursor-pointer bg-green-800">Manage Bus </Button>
-                    <Button onClick={() => setActiveContent(5)} className=" cursor-pointer bg-green-800"> Route </Button>
-                    <Button onClick={() => setActiveContent(6)} className=" cursor-pointer bg-green-800"> Book a seat </Button>
+                    <button onClick={() => setActiveContent(0)} className=" cursor-pointer  p-2 px-4 text-white border-r  bg-gray-500">Add User</button>
+                    <button onClick={() => setActiveContent(1)} className=" cursor-pointer  p-2 px-4 text-white border-r  bg-gray-500">Manage users </button>
+                    <button onClick={() => setActiveContent(3)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500">Add Bus</button>
+                    <button onClick={() => setActiveContent(4)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500">Manage Bus </button>
+                    <button onClick={() => setActiveContent(5)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Route </button>
+
+                    <button onClick={() => setActiveContent(7)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Seat Plan </button>
+                    <button onClick={() => setActiveContent(8)} className=" cursor-pointer  p-2 px-4 text-white border-r bg-gray-500"> Analytics </button>
+
+                    <button onClick={() => setActiveContent(6)} className=" cursor-pointer p-2 px-4 text-white border-r  bg-gray-500"> Book a seat </button>
 
 
 
 
-                    <Button onClick={() => handleLogput()} className=" cursor-pointer bg-rose-600">Logout </Button>
+                    <button onClick={() => handleLogput()} className=" cursor-pointer  p-2 px-4 text-white border-r bg-rose-600">Logout </button>
 
 
                 </div>
