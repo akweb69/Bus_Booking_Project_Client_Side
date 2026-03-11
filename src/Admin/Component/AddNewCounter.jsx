@@ -14,6 +14,7 @@ import {
     Plus,
     Loader2,
     CheckCircle2,
+    TicketCheck,
 } from 'lucide-react';
 import axios from 'axios';
 import useAllCountar from '../Hooks/useAllCountar';
@@ -28,7 +29,8 @@ const AddNewCounter = () => {
         confirmPassword: '',
         status: 'active',
         route: '',
-        canCancelBooking: false,          // ← NEW FIELD
+        canCancelBooking: false,
+        onlyBooking: false,          // ← NEW FIELD
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -49,7 +51,6 @@ const AddNewCounter = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check required fields (excluding checkbox)
         const requiredFields = ['name', 'id', 'location', 'password', 'confirmPassword', 'route'];
         if (requiredFields.some(field => !form[field]?.toString().trim())) {
             toast.error('Please fill in all required fields');
@@ -72,7 +73,8 @@ const AddNewCounter = () => {
                 password: form.password,
                 status: form.status,
                 selectedRoute: form.route,
-                canCancelBooking: form.canCancelBooking,     // ← NEW FIELD sent to backend
+                canCancelBooking: form.canCancelBooking,
+                onlyBooking: form.onlyBooking,               // ← NEW FIELD sent to backend
                 createdAt: new Date().toISOString(),
                 role: 'counter',
             };
@@ -94,6 +96,7 @@ const AddNewCounter = () => {
                 status: 'active',
                 route: '',
                 canCancelBooking: false,
+                onlyBooking: false,
             });
         } catch (err) {
             toast.dismiss(loadingToast);
@@ -138,7 +141,7 @@ const AddNewCounter = () => {
                         {/* Name */}
                         <div>
                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                Counter Name <span className="text-red-500">*</span>
+                                Full Name <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                                 <User className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -284,27 +287,53 @@ const AddNewCounter = () => {
                             </div>
                         </div>
 
-                        {/* NEW FIELD - Checkbox */}
-                        <div className="pt-2">
-                            <label className="flex items-center gap-3 cursor-pointer select-none">
-                                <input
-                                    type="checkbox"
-                                    name="canCancelBooking"
-                                    checked={form.canCancelBooking}
-                                    onChange={handleChange}
-                                    className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                                />
-                                <span className="text-sm font-medium text-gray-700">
-                                    Counter is allowed to cancel bookings
-                                </span>
-                            </label>
-                            <p className="mt-1 ml-8 text-xs text-gray-500">
-                                If checked, this counter can cancel passenger bookings
-                            </p>
+                        {/* Permissions Section */}
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                                Counter Permissions
+                            </h3>
+
+                            {/* Can Cancel Booking */}
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        name="canCancelBooking"
+                                        checked={form.canCancelBooking}
+                                        onChange={handleChange}
+                                        className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Allow to cancel bookings
+                                    </span>
+                                </label>
+                                <p className="mt-1 ml-8 text-xs text-gray-500">
+                                    If checked, this counter can cancel passenger bookings
+                                </p>
+                            </div>
+
+                            {/* ✅ NEW FIELD — Only Booking */}
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        name="onlyBooking"
+                                        checked={form.onlyBooking}
+                                        onChange={handleChange}
+                                        className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Allow to only booking
+                                    </span>
+                                </label>
+                                <p className="mt-1 ml-8 text-xs text-gray-500">
+                                    If checked, this counter is restricted to making bookings only — no other actions permitted
+                                </p>
+                            </div>
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-6">
+                        <div className="pt-2">
                             <button
                                 type="submit"
                                 disabled={submitting}

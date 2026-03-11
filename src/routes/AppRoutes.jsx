@@ -3,13 +3,6 @@ import MainLayout from "@/layouts/MainLayout";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
-import Layout from "@/Admin/MainLayout/Layout";
-import AdminDash from "@/Admin/MainLayout/AdminDash";
-import UserLayout from "@/Admin/User/Layout/UserLayout";
-import UserDash from "@/Admin/User/Layout/UserDash";
-import SignIn from "@/Pages/SignIn";
-import SignUp from "@/Pages/SignUp";
-import Manage_Counter_Id from "@/Admin/Pages/Manage_Counter_Id";
 import NewAdminLayout from "@/Admin/MainLayout/NewAdminLayout";
 import CouterLayout from "@/Layouts/CouterLayout";
 
@@ -19,8 +12,8 @@ const AppRoutes = () => {
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
+                {/* <Route path="/signin" element={<SignIn />} /> */}
+                {/* <Route path="/signup" element={<SignUp />} /> */}
             </Route>
 
             {/* admin routes */}

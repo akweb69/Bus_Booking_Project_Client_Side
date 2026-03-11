@@ -145,11 +145,11 @@ const filterBuses = () => {
             // console.log("--------->", seatStatus.gender);
 
             return seatStatus.gender === 'Male'
-                ? 'text-center p-2 rounded shadow  bg-blue-700 text-white cursor-not-allowed  '
-                : 'text-center p-2 rounded shadow bg-pink-700 text-white cursor-not-allowed ';
+                ? 'text-center p-2 rounded shadow  bg-blue-600 text-white cursor-not-allowed  '
+                : 'text-center p-2 rounded shadow bg-rose-600 text-white cursor-not-allowed ';
 
         if (seatStatus?.status === 'selected')
-            return 'text-center p-2 rounded shadow bg-yellow-700 text-black cursor-pointer border-2 border-yellow-600 ';
+            return 'text-center p-2 rounded shadow bg-yellow-500 text-black cursor-pointer border-2 border-yellow-600 ';
 
         return 'text-center p-2 rounded shadow bg-green-700 text-white cursor-pointer hover:bg-green-600';
     };
@@ -239,15 +239,17 @@ const filterBuses = () => {
     const handleInputChange = (e) => setPassengerInfo({ ...passengerInfo, [e.target.name]: e.target.value });
 
     const validateForm = () => {
-        const required = ['name', 'mobile', 'gender', 'age', 'boardingPoint', 'droppingPoint'];
+        const required = ['name', 'mobile', 'gender', 'boardingPoint', 'droppingPoint'];
         for (let field of required) if (!passengerInfo[field]?.trim()) { alert(`Please fill in ${field.toUpperCase()}`); return false; }
         if (selectedSeats.length === 0) { alert('Please select at least one seat'); return false; }
-        if (passengerInfo.mobile.length < 12) { alert('Please enter a valid mobile number'); return false; }
+        if (passengerInfo.mobile.length < 10) { alert('Please enter a valid mobile number'); return false; }
         return true;
     };
 
+
     const handleConfirmBooking = async () => {
         if (!validateForm()) return;
+        toast.loading('Processing booking...', { position: 'top-center' });
         try {
             for (let seat of selectedSeats) {
                 const booking = {
@@ -276,17 +278,23 @@ const filterBuses = () => {
                     paymentMethod: passengerInfo.paymentMethod,
                     bookingDate: new Date().toISOString(),
                     status: 'confirmed',
-                    counterCode: localStorage.getItem('counterCode')
+                    counterCode: localStorage.getItem('counterCode'),
+                    counterName: localStorage.getItem('counterName') || 'N/A'
+
                 };
                 await axios.post(`${import.meta.env.VITE_BASE_URL}/bookings`, booking);
             }
-            alert(`Successfully booked ${selectedSeats.length} seat(s)!`);
+            // alert(`Successfully booked ${selectedSeats.length} seat(s)!`);
+            // toast
+            toast.dismiss();
+            toast.success(`Successfully booked ${selectedSeats.length} seat(s)!`);
             handleReset();
             fetchBookings();
             fetchDashboardBookings();
         } catch (error) {
             console.error('Error booking seats:', error);
-            alert(error.response?.data?.error || 'Failed to book seats. Please try again.');
+            // alert(error.response?.data?.error || 'Failed to book seats. Please try again.');
+            toast.error(error.response?.data?.error || 'Failed to book seats. Please try again.');
         }
     };
 
@@ -445,7 +453,7 @@ const filterBuses = () => {
             {
                 showBookingDetails && (
                     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6">
-                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col">
+                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col">
 
                             {/* Header */}
                             <div className="sticky top-0 bg-white border-b px-5 sm:px-8 py-4 flex items-center justify-between z-10">
@@ -474,6 +482,9 @@ const filterBuses = () => {
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                                     Counter Id
+                                                </th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    Counter Name
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                                     Passenger
@@ -510,6 +521,12 @@ const filterBuses = () => {
                                                     <td className="px-4 py-4">
                                                         <div className="text-sm text-gray-900">
                                                             {b?.counterCode}
+                                                        </div>
+
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="text-sm text-gray-900">
+                                                            {b?.counterName || 'N/A'}
                                                         </div>
 
                                                     </td>
@@ -1157,7 +1174,7 @@ const filterBuses = () => {
                                                         name="name"
                                                         value={passengerInfo.name}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-50 border outline-none"
                                                         required
                                                     />
                                                 </div>
@@ -1166,13 +1183,15 @@ const filterBuses = () => {
                                                     <label className="p-2 border-r border-gray-400 font-bold">
                                                         MOBILE <span className="text-red-500">*</span>:
                                                     </label>
+                                                    {/* max length 11 */}
                                                     <input
                                                         type="text"
                                                         name="mobile"
                                                         value={passengerInfo.mobile}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-50 border outline-none"
                                                         required
+                                                        maxLength="11"
                                                     />
                                                 </div>
                                             </div>
@@ -1187,7 +1206,7 @@ const filterBuses = () => {
                                                         name="gender"
                                                         value={passengerInfo.gender}
                                                         onChange={handleInputChange}
-                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
+                                                        className="col-span-2 p-2 bg-gray-50 border outline-none"
                                                         required
                                                     >
                                                         <option>Male</option>
@@ -1197,7 +1216,7 @@ const filterBuses = () => {
 
                                                 <div className="grid grid-cols-3">
                                                     <label className="p-2 border-r font-bold border-gray-400">
-                                                        AGE <span className="text-red-500">*</span>:
+                                                        AGE :
                                                     </label>
                                                     <input
                                                         type="number"
@@ -1205,10 +1224,49 @@ const filterBuses = () => {
                                                         value={passengerInfo.age}
                                                         onChange={handleInputChange}
                                                         className="col-span-2 p-2 bg-gray-200 border outline-none"
-                                                        required
+
                                                     />
                                                 </div>
                                             </div>
+                                            {/* Boarding Point + Dropping Point (Required) */}
+                                            <div className="grid grid-cols-2 border-b border-gray-400">
+                                                <div className="grid grid-cols-3 border-r border-gray-400">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
+                                                        BOARDING POINT <span className="text-red-500">*</span>:
+                                                    </label>
+                                                    <select
+                                                        name="boardingPoint"
+                                                        value={passengerInfo.boardingPoint}
+                                                        onChange={handleInputChange}
+                                                        className="col-span-2 p-2 bg-gray-50 border outline-none"
+                                                        required
+                                                    >
+                                                        <option value="">Select boarding point</option>
+                                                        {boardingPoints?.split(",")?.map((point, idx) => (
+                                                            <option key={idx} value={point}>{point}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="grid grid-cols-3">
+                                                    <label className="p-2 border-r border-gray-400 font-bold">
+                                                        DROPPING POINT <span className="text-red-500">*</span>:
+                                                    </label>
+                                                    <select
+                                                        name="droppingPoint"
+                                                        value={passengerInfo.droppingPoint}
+                                                        onChange={handleInputChange}
+                                                        className="col-span-2 p-2 bg-gray-50 border outline-none"
+                                                        required
+                                                    >
+                                                        <option value="">Select dropping point</option>
+                                                        {boardingPoints?.split(",")?.map((point, idx) => (
+                                                            <option key={idx} value={point}>{point}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+
 
                                             {/* Address (Optional) */}
                                             <div className="grid grid-cols-3 border-b border-gray-400">
@@ -1273,44 +1331,6 @@ const filterBuses = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Boarding Point + Dropping Point (Required) */}
-                                            <div className="grid grid-cols-2 border-b border-gray-400">
-                                                <div className="grid grid-cols-3 border-r border-gray-400">
-                                                    <label className="p-2 border-r border-gray-400 font-bold">
-                                                        BOARDING POINT <span className="text-red-500">*</span>:
-                                                    </label>
-                                                    <select
-                                                        name="boardingPoint"
-                                                        value={passengerInfo.boardingPoint}
-                                                        onChange={handleInputChange}
-                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
-                                                        required
-                                                    >
-                                                        <option value="">Select boarding point</option>
-                                                        {boardingPoints?.split(",")?.map((point, idx) => (
-                                                            <option key={idx} value={point}>{point}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-
-                                                <div className="grid grid-cols-3">
-                                                    <label className="p-2 border-r border-gray-400 font-bold">
-                                                        DROPPING POINT <span className="text-red-500">*</span>:
-                                                    </label>
-                                                    <select
-                                                        name="droppingPoint"
-                                                        value={passengerInfo.droppingPoint}
-                                                        onChange={handleInputChange}
-                                                        className="col-span-2 p-2 bg-gray-200 border outline-none"
-                                                        required
-                                                    >
-                                                        <option value="">Select dropping point</option>
-                                                        {boardingPoints?.split(",")?.map((point, idx) => (
-                                                            <option key={idx} value={point}>{point}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            </div>
 
                                             {/* Goods + Gross Pay */}
                                             <div className="grid grid-cols-2 border-b border-gray-400">
@@ -1412,12 +1432,12 @@ const filterBuses = () => {
                                                     ? 'bg-gray-400 cursor-not-allowed'
                                                     : 'bg-green-600 cursor-pointer hover:bg-green-700'
                                                     }`}>
-                                                CONFIRM BOOKING
+                                                SEAT BOOKING
                                             </button>
                                             <button
                                                 onClick={handleReset}
                                                 className="bg-red-500 cursor-pointer text-white p-2 px-4 text-sm font-medium rounded hover:bg-red-600">
-                                                RESET
+                                                RESET FORM
                                             </button>
                                         </div>
                                     </div>

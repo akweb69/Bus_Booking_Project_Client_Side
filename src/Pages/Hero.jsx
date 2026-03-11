@@ -52,6 +52,7 @@ const Hero = () => {
             if (dbPassword === password && status === 'active' && role === 'counter') {
                 localStorage.setItem('counterCode', counterCode)
                 localStorage.setItem('password', data?.password)
+                localStorage.setItem("counterName", data?.counterName || "Counter User")
 
                 toast.dismiss()
                 toast.success('Successfully logged in')
@@ -61,6 +62,8 @@ const Hero = () => {
             else if (dbPassword === password && status === 'active' && role === 'admin') {
                 localStorage.setItem('counterCode', counterCode)
                 localStorage.setItem('password', data?.password)
+                localStorage.setItem("counterName", data?.counterName || "Counter User")
+
                 toast.dismiss()
                 toast.success('Successfully logged in')
                 navigate('/admin')

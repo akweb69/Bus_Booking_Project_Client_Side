@@ -13,6 +13,7 @@ import BookASeat from '../Component/BookASeat';
 import AdminBooking from '../Pages/AdminBooking';
 import useAllRoute from '../Hooks/useAllRoute';
 import Analytics from '../Pages/Analytics';
+import VangaSeatManagement from '../Component/VangaSeatManagement';
 
 const NewAdminLayout = () => {
     const [loading, setLoading] = useState(true);
@@ -117,6 +118,9 @@ const NewAdminLayout = () => {
 
                     <button onClick={() => setActiveContent(8)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 8 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Analytics </button>
 
+                    <button onClick={() => setActiveContent(10)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 10 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Manage Vanga Seat </button>
+
+
                     <button onClick={() => setActiveContent(6)} className={`cursor-pointer  p-2 px-4 text-white border-r  ${activeContent === 6 ? "bg-green-700 text-white" : "bg-gray-500"}`}> Book a seat </button>
 
 
@@ -149,6 +153,10 @@ const NewAdminLayout = () => {
                 }
                 {
                     activeContent === 6 && <AdminBooking boardingPoints={allBoardingPoints} />
+                }
+
+                {
+                    activeContent === 10 && <VangaSeatManagement />
                 }
 
             </div>

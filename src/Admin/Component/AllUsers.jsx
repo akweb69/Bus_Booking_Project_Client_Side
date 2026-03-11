@@ -113,8 +113,6 @@ const AllCounters = () => {
             const payload = { ...editForm };
             if (newPassword) payload.password = newPassword;
 
-            // canCancelBooking is already in editForm (boolean)
-
             await axios.patch(`${baseUrl}/user/${selectedCounter._id}`, payload);
 
             toast.success('Counter updated successfully', { id: toastId });
@@ -152,6 +150,20 @@ const AllCounters = () => {
             setDeleting(false);
         }
     };
+
+    // ─── Reusable badge for boolean fields ───
+    const BoolBadge = ({ value }) =>
+        value ? (
+            <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={15} className="text-emerald-600" />
+                <span className="font-medium text-emerald-700 text-xs">Yes</span>
+            </div>
+        ) : (
+            <div className="flex items-center gap-1.5">
+                <XCircle size={15} className="text-rose-500" />
+                <span className="text-gray-500 text-xs">No</span>
+            </div>
+        );
 
     if (isLoading) {
         return (
@@ -204,6 +216,7 @@ const AllCounters = () => {
 
             {/* Table / Cards */}
             <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+
                 {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm">
@@ -215,13 +228,15 @@ const AllCounters = () => {
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Role</th>
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Status</th>
                                 <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Can Cancel</th>
+                                {/* ✅ NEW COLUMN */}
+                                <th className="px-5 py-3.5 text-left font-semibold text-gray-700">Only Booking</th>
                                 <th className="px-5 py-3.5 text-right font-semibold text-gray-700">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentItems.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="py-16 text-center text-gray-500">
+                                    <td colSpan={8} className="py-16 text-center text-gray-500">
                                         No counters found
                                     </td>
                                 </tr>
@@ -233,7 +248,9 @@ const AllCounters = () => {
                                         <td className="px-5 py-4 text-gray-600">{c.counterLocation}</td>
                                         <td className="px-5 py-4">
                                             <span
-                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.role === 'admin'
+                                                        ? 'bg-purple-100 text-purple-800'
+                                                        : 'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 {c.role || 'counter'}
@@ -241,26 +258,20 @@ const AllCounters = () => {
                                         </td>
                                         <td className="px-5 py-4">
                                             <span
-                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'active'
+                                                        ? 'bg-emerald-100 text-emerald-800'
+                                                        : 'bg-rose-100 text-rose-800'
                                                     }`}
                                             >
                                                 {c.status}
                                             </span>
                                         </td>
                                         <td className="px-5 py-4">
-                                            <div className="flex items-center gap-1.5">
-                                                {c.canCancelBooking ? (
-                                                    <>
-                                                        <CheckCircle2 size={16} className="text-emerald-600" />
-                                                        <span className="font-medium text-emerald-700">Yes</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <XCircle size={16} className="text-rose-600" />
-                                                        <span className="text-gray-600">No</span>
-                                                    </>
-                                                )}
-                                            </div>
+                                            <BoolBadge value={c.canCancelBooking} />
+                                        </td>
+                                        {/* ✅ NEW CELL */}
+                                        <td className="px-5 py-4">
+                                            <BoolBadge value={c.onlyBooking} />
                                         </td>
                                         <td className="px-5 py-4 text-right">
                                             <button
@@ -320,7 +331,9 @@ const AllCounters = () => {
                                         <div className="text-gray-500">Role</div>
                                         <div className="mt-0.5">
                                             <span
-                                                className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                                                className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.role === 'admin'
+                                                        ? 'bg-purple-100 text-purple-800'
+                                                        : 'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 {c.role || 'counter'}
@@ -331,7 +344,9 @@ const AllCounters = () => {
                                         <div className="text-gray-500">Status</div>
                                         <div className="mt-0.5">
                                             <span
-                                                className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                                className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.status === 'active'
+                                                        ? 'bg-emerald-100 text-emerald-800'
+                                                        : 'bg-rose-100 text-rose-800'
                                                     }`}
                                             >
                                                 {c.status}
@@ -340,18 +355,15 @@ const AllCounters = () => {
                                     </div>
                                     <div>
                                         <div className="text-gray-500">Can Cancel</div>
-                                        <div className="mt-0.5 flex items-center gap-1.5">
-                                            {c.canCancelBooking ? (
-                                                <>
-                                                    <CheckCircle2 size={14} className="text-emerald-600" />
-                                                    <span className="font-medium text-emerald-700">Yes</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <XCircle size={14} className="text-rose-600" />
-                                                    <span className="text-gray-600">No</span>
-                                                </>
-                                            )}
+                                        <div className="mt-0.5">
+                                            <BoolBadge value={c.canCancelBooking} />
+                                        </div>
+                                    </div>
+                                    {/* ✅ NEW MOBILE FIELD */}
+                                    <div>
+                                        <div className="text-gray-500">Only Booking</div>
+                                        <div className="mt-0.5">
+                                            <BoolBadge value={c.onlyBooking} />
                                         </div>
                                     </div>
                                 </div>
@@ -470,27 +482,56 @@ const AllCounters = () => {
                                     </div>
                                 </div>
 
-                                {/* ─── NEW FIELD: Can Cancel Booking ─── */}
-                                <div className="pt-2 border-t">
-                                    <label className="flex items-center gap-3 cursor-pointer select-none">
-                                        <input
-                                            type="checkbox"
-                                            name="canCancelBooking"
-                                            checked={editForm.canCancelBooking || false}
-                                            onChange={handleEditChange}
-                                            className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                                        />
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-700 block">
-                                                Allow this counter to cancel bookings
-                                            </span>
-                                            <span className="text-xs text-gray-500">
-                                                If enabled, this counter can cancel passenger tickets
-                                            </span>
-                                        </div>
-                                    </label>
+                                {/* ─── Permissions Section ─── */}
+                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                                        Counter Permissions
+                                    </h3>
+
+                                    {/* Can Cancel Booking */}
+                                    <div>
+                                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                                            <input
+                                                type="checkbox"
+                                                name="canCancelBooking"
+                                                checked={editForm.canCancelBooking || false}
+                                                onChange={handleEditChange}
+                                                className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                            />
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 block">
+                                                    Allow to cancel bookings
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    Counter can cancel passenger tickets
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* ✅ NEW FIELD — Only Booking */}
+                                    <div>
+                                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                                            <input
+                                                type="checkbox"
+                                                name="onlyBooking"
+                                                checked={editForm.onlyBooking || false}
+                                                onChange={handleEditChange}
+                                                className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                            />
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 block">
+                                                    Allow to only booking
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    Counter is restricted to making bookings only
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
 
+                                {/* Password Reset */}
                                 <div className="border-t pt-5">
                                     <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-700">
                                         <Lock size={16} /> Reset Password (optional)
