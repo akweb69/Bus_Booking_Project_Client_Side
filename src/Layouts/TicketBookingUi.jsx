@@ -749,7 +749,9 @@ const TicketBookingUi = ({ activeRoute }) => {
                                         <div className="text-xs text-gray-400">{date}</div>
                                     </td>
                                     <td className="py-2 border border-gray-300">{detailsBus.bus_number}</td>
-                                    <td className="py-2 border border-gray-300 text-xs">{detailsBus.bus_route}</td>
+                                    <td className="py-2 border border-gray-300">{
+                                        allRoutes?.find(r => r._id === detailsBus.bus_route)?.route_name || '—'
+                                    }</td>
                                     <td className="py-2 border border-gray-300">{boardingPoints[0]?.boarding_point || '—'}</td>
                                     <td className="py-2 border border-gray-300">{droppingPoints[droppingPoints.length - 1]?.dropping_point || '—'}</td>
                                     <td className="py-2 border border-gray-300">৳{detailsBus.perSeatFees}</td>

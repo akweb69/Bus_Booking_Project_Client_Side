@@ -730,12 +730,13 @@ const FilterBuses = () => {
                     </div>
 
                     {filteredBuses.map((bus, i) => {
-                        const fromRoute = allRoutes?.find(r => r.route_name === bus.bus_route);
+                        const fromRoute = allRoutes?.find(r => r._id === bus.bus_route);
                         return (
                             <div key={i}>
                                 {/* Desktop */}
                                 <div className="hidden md:grid grid-cols-12 items-center px-4 py-3 border-b hover:bg-gray-50 text-sm">
                                     <div className="col-span-3 font-medium text-gray-800">{bus.bus_name}</div>
+
                                     <div className="col-span-3 text-gray-600 text-xs">
                                         <div>{fromRoute?.from_location} → {fromRoute?.to_location}</div>
                                         <div className="text-gray-400">{to12hr(bus.bus_starting_time)} → {to12hr(bus.bus_last_stoppage_time)}</div>
@@ -795,7 +796,13 @@ const FilterBuses = () => {
                                         {date} · {to12hr(detailsBus.bus_starting_time)}
                                     </td>
                                     <td className="py-2 border border-gray-300">{detailsBus.bus_number}</td>
-                                    <td className="py-2 border border-gray-300">{detailsBus.bus_route}</td>
+
+
+                                    <td className="py-2 border border-gray-300">{
+                                        allRoutes?.find(r => r._id === detailsBus.bus_route)?.route_name || '—'
+                                    }</td>
+
+
                                     <td className="py-2 border border-gray-300">
                                         {detailsBus.all_boarding_points?.[0]?.boarding_point || '—'}
                                     </td>
