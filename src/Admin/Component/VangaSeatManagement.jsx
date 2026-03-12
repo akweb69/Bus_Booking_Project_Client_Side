@@ -1,216 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import useAllBuses from '../Hooks/useAllBuses';
+import React from "react";
+import useAllBuses from "../Hooks/useAllBuses";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
+const seatRows = [
+    ["EX1", "EX2", null, "EX3", "EX4"],
+    ["GD1", null, null, null, null],
+
+    ["A1", "A2", null, "A3", "A4"],
+    ["B1", "B2", null, "B3", "B4"],
+    ["C1", "C2", null, "C3", "C4"],
+    ["D1", "D2", null, "D3", "D4"],
+    ["E1", "E2", null, "E3", "E4"],
+    ["F1", "F2", null, "F3", "F4"],
+    ["G1", "G2", null, "G3", "G4"],
+    ["H1", "H2", null, "H3", "H4"],
+    ["I1", "I2", null, "I3", "I4"],
+
+    ["J1", "J2", null, "J3", "J4"],
+    [null, null, null, null, "J5"],
+];
 
 const VangaSeatManagement = () => {
-    const { busRefetch, busLoading, allBuses } = useAllBuses();
-    const [selectedBusId, setSelectedBusId] = useState('');
-    const [selectedBus, setSelectedBus] = useState(null);
-    const [damagedSeats, setDamagedSeats] = useState([]);
-    const [saving, setSaving] = useState(false);
+    const { allBuses, busRefetch } = useAllBuses();
+
     const base_url = import.meta.env.VITE_BASE_URL;
 
-    // Load selected bus data when selection changes
-    useEffect(() => {
-        if (!selectedBusId) {
-            setSelectedBus(null);
-            setDamagedSeats([]);
-            return;
-        }
+    const [selectedBus, setSelectedBus] = React.useState(null);
+    const [damageSeats, setDamageSeats] = React.useState([]);
 
-        const bus = allBuses.find(b => b._id === selectedBusId);
-        if (bus) {
-            setSelectedBus(bus);
-            setDamagedSeats(bus.damagedSeats || []);
+    const handleBusSelect = (bus) => {
+        setSelectedBus(bus);
+        setDamageSeats(bus?.damage_seats || []);
+    };
+
+    const handleSeatClick = (seat) => {
+        if (!seat) return;
+
+        if (damageSeats.includes(seat)) {
+            setDamageSeats(damageSeats.filter((s) => s !== seat));
         } else {
-            // Optional: fetch single bus if not in allBuses
-            setSelectedBus(null);
-            setDamagedSeats([]);
+            setDamageSeats([...damageSeats, seat]);
         }
-    }, [selectedBusId, allBuses]);
-
-    const isDamaged = (seat) => damagedSeats.includes(seat);
-
-    const toggleDamaged = (seat) => {
-        setDamagedSeats(prev =>
-            prev.includes(seat)
-                ? prev.filter(s => s !== seat)
-                : [...prev, seat]
-        );
     };
 
     const getSeatColor = (seat) => {
-        if (isDamaged(seat)) {
-            return 'bg-red-600 text-white cursor-pointer hover:bg-red-700';
+        if (!seat) return "invisible";
+
+        if (damageSeats.includes(seat)) {
+            return "bg-red-500 text-white";
         }
-        return 'bg-green-200 hover:bg-green-300 cursor-pointer';
+
+        return "bg-green-500 text-white";
     };
 
-    const handleSave = async () => {
-        if (!selectedBusId) {
-            alert('কোনো বাস সিলেক্ট করুন');
-            return;
-        }
-
-        setSaving(true);
+    const handleUpdate = async () => {
         try {
-            const res = await fetch(`${base_url}/api/buses/${selectedBusId}/damaged-seats`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Authorization: `Bearer ${token}`  ← add if needed
-                },
-                body: JSON.stringify({ damagedSeats }),
+            await axios.patch(`${base_url}/bus/damage-seats/${selectedBus._id}`, {
+                seats: damageSeats,
             });
 
-            if (!res.ok) throw new Error('Failed to update');
+            toast.success("Seats updated");
 
-            alert('ভাঙা সিট সফলভাবে আপডেট হয়েছে!');
-            busRefetch(); // refresh list
+            busRefetch();
         } catch (err) {
-            console.error(err);
-            alert('আপডেট করতে সমস্যা হয়েছে।');
-        } finally {
-            setSaving(false);
+            toast.error("Update failed");
         }
     };
 
     return (
-        <div className="p-4 max-w-5xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">ভাঙা সিট ম্যানেজমেন্ট</h1>
+        <div className="p-6">
 
-            {/* Bus Selection */}
-            <div className="mb-6">
-                <label className="block mb-2 font-medium">বাস সিলেক্ট করুন:</label>
-                <select
-                    className="border rounded px-3 py-2 w-full sm:w-96"
-                    value={selectedBusId}
-                    onChange={e => setSelectedBusId(e.target.value)}
-                >
-                    <option value="">-- বাস নির্বাচন করুন --</option>
-                    {busLoading ? (
-                        <option>Loading...</option>
-                    ) : (
-                        allBuses.map(bus => (
-                            <option key={bus._id} value={bus._id}>
-                                {bus.bus_name} - {bus.bus_number} ({bus.availability})
-                            </option>
-                        ))
-                    )}
-                </select>
+            <h1 className="text-2xl font-bold mb-6">
+                Bus Seat Damage Management
+            </h1>
+
+            {/* Bus Select */}
+
+            <div className="flex flex-wrap gap-2 mb-8">
+                {allBuses?.map((bus) => (
+                    <button
+                        key={bus._id}
+                        onClick={() => handleBusSelect(bus)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        {bus.bus_name} ({bus.bus_number})
+                    </button>
+                ))}
             </div>
 
             {selectedBus && (
-                <>
-                    <div className="mb-6 p-4 bg-gray-100 rounded">
-                        <p><strong>বাস:</strong> {selectedBus.bus_name} ({selectedBus.bus_number})</p>
-                        <p><strong>ভাড়া:</strong> ৳{selectedBus.perSeatFees}</p>
-                        <p><strong>রুট:</strong> {selectedBus.bus_route}</p>
+                <div>
+
+                    <h2 className="font-semibold mb-4">
+                        Seat Layout - {selectedBus.bus_name}
+                    </h2>
+
+                    {/* Driver */}
+
+                    <div className="mb-4 text-sm bg-gray-200 w-32 p-2 rounded">
+                        🧑‍✈️ Driver
                     </div>
 
-                    {/* Seat Grid - Based on your original commented structure */}
-                    <div className="bg-yellow-100 mt-4 p-4 border rounded shadow">
-                        <div className="w-full grid grid-cols-5 gap-1 text-xs sm:text-sm font-medium select-none">
-                            {/* Top row - extra seats */}
-                            <div></div>
-                            <div></div>
-                            {['EX1', 'EX2'].map(s => (
-                                <div
-                                    key={s}
-                                    onClick={() => toggleDamaged(s)}
-                                    className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                >
-                                    {s}
-                                </div>
-                            ))}
-                            <div></div>
+                    {/* Seat Grid */}
 
-                            {/* Driver / GD1 */}
+                    <div className="bg-yellow-100 p-3 rounded w-fit">
+
+                        {seatRows.map((row, rowIndex) => (
                             <div
-                                onClick={() => toggleDamaged('GD1')}
-                                className={`p-2 text-center rounded border col-start-2 ${getSeatColor('GD1')}`}
+                                key={rowIndex}
+                                className="grid grid-cols-5 gap-2 mb-2"
                             >
-                                GD1
+                                {row.map((seat, seatIndex) => (
+                                    <div
+                                        key={seatIndex}
+                                        onClick={() => handleSeatClick(seat)}
+                                        className={`w-10 h-8 flex items-center justify-center rounded cursor-pointer text-xs font-semibold ${getSeatColor(
+                                            seat
+                                        )}`}
+                                    >
+                                        {seat}
+                                    </div>
+                                ))}
                             </div>
-                            <div></div>
+                        ))}
 
-                            {['EX3', 'EX4'].map(s => (
-                                <div
-                                    key={s}
-                                    onClick={() => toggleDamaged(s)}
-                                    className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                >
-                                    {s}
-                                </div>
-                            ))}
-                            <div></div>
-
-                            {/* Main rows A to I → 2 | aisle | 2 */}
-                            {Array.from('ABCDEFGHI').map(letter => (
-                                <React.Fragment key={letter}>
-                                    {[`${letter}1`, `${letter}2`].map(s => (
-                                        <div
-                                            key={s}
-                                            onClick={() => toggleDamaged(s)}
-                                            className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                        >
-                                            {s}
-                                        </div>
-                                    ))}
-                                    <div className="bg-gray-300"></div> {/* aisle */}
-                                    {[`${letter}3`, `${letter}4`].map(s => (
-                                        <div
-                                            key={s}
-                                            onClick={() => toggleDamaged(s)}
-                                            className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                        >
-                                            {s}
-                                        </div>
-                                    ))}
-                                </React.Fragment>
-                            ))}
-
-                            {/* Last row - 5 seats (J row) */}
-                            {['J1', 'J2'].map(s => (
-                                <div
-                                    key={s}
-                                    onClick={() => toggleDamaged(s)}
-                                    className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                >
-                                    {s}
-                                </div>
-                            ))}
-                            <div
-                                onClick={() => toggleDamaged('J5')}
-                                className={`p-2 text-center rounded border ${getSeatColor('J5')}`}
-                            >
-                                J5
-                            </div>
-                            {['J3', 'J4'].map(s => (
-                                <div
-                                    key={s}
-                                    onClick={() => toggleDamaged(s)}
-                                    className={`p-2 text-center rounded border ${getSeatColor(s)}`}
-                                >
-                                    {s}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-4 text-sm text-center text-gray-600">
-                            লাল = ভাঙা / নিষিদ্ধ • সবুজ = ঠিক আছে • ক্লিক করে পরিবর্তন করুন
-                        </div>
                     </div>
 
-                    <div className="mt-6">
-                        <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 disabled:bg-gray-400"
-                        >
-                            {saving ? 'সেভ হচ্ছে...' : 'সেভ করুন'}
-                        </button>
-                    </div>
-                </>
+                    {/* Update Button */}
+
+                    <button
+                        onClick={handleUpdate}
+                        className="mt-6 bg-black text-white px-6 py-2 rounded"
+                    >
+                        Update Damage Seats
+                    </button>
+                </div>
             )}
         </div>
     );

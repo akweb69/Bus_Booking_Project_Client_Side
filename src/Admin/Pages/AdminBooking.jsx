@@ -114,6 +114,8 @@ const FilterBuses = () => {
     // ─────────────────────────────────────────────────────────────────────────
     useEffect(() => {
         if (detailsBus && date) fetchBookings();
+        console.log('Selected Bus:', detailsBus?.damage_seats
+        );
     }, [detailsBus, date]);
 
     const fetchBookings = async () => {
@@ -163,19 +165,27 @@ const FilterBuses = () => {
     };
 
     const getSeatColor = (seatNumber) => {
+        // damage seats management--->
+        if (detailsBus?.damage_seats?.includes(seatNumber)) return 'text-center p-4  rounded shadow bg-red-950 text-white cursor-not-allowed';
+
+
         const { status, gender } = getSeatInfo(seatNumber);
         if (status === 'selected')
             return 'text-center p-4 rounded shadow bg-yellow-400 text-black cursor-pointer border-2 border-yellow-600';
         if (status === 'booked')
-            return 'text-center p-4 rounded shadow bg-blue-700 text-white cursor-pointer';
+            return 'text-center p-4 rounded shadow bg-blue-800 text-white cursor-pointer';
         if (status === 'sold')
             return gender === 'Female'
-                ? 'text-center p-4 rounded shadow bg-orange-600 text-white cursor-not-allowed'
-                : 'text-center p-4 rounded shadow bg-rose-600 text-white cursor-not-allowed';
+                ? 'text-center p-4 rounded shadow bg-orange-700 text-white cursor-not-allowed'
+                : 'text-center p-4 rounded shadow bg-rose-700 text-white cursor-not-allowed';
         return 'text-center p-4 rounded shadow bg-green-800 text-white cursor-pointer hover:bg-green-600';
     };
 
     const handleSeatClick = (seatNumber) => {
+
+        // check damage seat --->
+        if (detailsBus?.damage_seats?.includes(seatNumber)) return toast.error("This is damage seat not for booking or sell");
+
         const { status, booking } = getSeatInfo(seatNumber);
         const { isAdmin, canCancelBooking, onlyBooking, counterCode } = userInfo;
 
@@ -789,6 +799,7 @@ const FilterBuses = () => {
                                     ))}
                                 </tr>
                             </thead>
+
                             <tbody>
                                 <tr className="text-black text-center">
                                     <td className="py-2 border border-gray-300">1</td>

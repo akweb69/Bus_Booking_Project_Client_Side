@@ -124,6 +124,10 @@ const TicketBookingUi = ({ activeRoute }) => {
     };
 
     const getSeatColor = (seatNumber) => {
+
+        // damage seats management--->
+        if (detailsBus?.damage_seats?.includes(seatNumber)) return 'text-center p-4  rounded shadow bg-red-950 text-white cursor-not-allowed';
+
         const { status, gender } = getSeatInfo(seatNumber);
         if (status === 'selected')
             return 'text-center p-4 rounded shadow bg-yellow-400 text-black cursor-pointer border-2 border-yellow-600';
@@ -138,6 +142,14 @@ const TicketBookingUi = ({ activeRoute }) => {
     // seat click — booked/sold যেকোনো seat এ click করলে modal খুলবে
     // Cancel button শুধু নিজের seat এ দেখাবে (same counterCode) বা admin
     const handleSeatClick = (seat) => {
+
+
+
+        // check damage seat --->
+        if (detailsBus?.damage_seats?.includes(seat)) return toast.error("This is damage seat not for booking or sell");
+
+
+
         const info = getSeatInfo(seat);
         if (info.status === 'available' || info.status === 'selected') {
             setSelectedSeats(prev =>
