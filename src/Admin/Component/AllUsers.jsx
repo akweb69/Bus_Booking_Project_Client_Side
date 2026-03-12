@@ -249,8 +249,8 @@ const AllCounters = () => {
                                         <td className="px-5 py-4">
                                             <span
                                                 className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.role === 'admin'
-                                                        ? 'bg-purple-100 text-purple-800'
-                                                        : 'bg-blue-100 text-blue-800'
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 {c.role || 'counter'}
@@ -259,8 +259,8 @@ const AllCounters = () => {
                                         <td className="px-5 py-4">
                                             <span
                                                 className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'active'
-                                                        ? 'bg-emerald-100 text-emerald-800'
-                                                        : 'bg-rose-100 text-rose-800'
+                                                    ? 'bg-emerald-100 text-emerald-800'
+                                                    : 'bg-rose-100 text-rose-800'
                                                     }`}
                                             >
                                                 {c.status}
@@ -332,8 +332,8 @@ const AllCounters = () => {
                                         <div className="mt-0.5">
                                             <span
                                                 className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.role === 'admin'
-                                                        ? 'bg-purple-100 text-purple-800'
-                                                        : 'bg-blue-100 text-blue-800'
+                                                    ? 'bg-purple-100 text-purple-800'
+                                                    : 'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 {c.role || 'counter'}
@@ -345,8 +345,8 @@ const AllCounters = () => {
                                         <div className="mt-0.5">
                                             <span
                                                 className={`inline-block px-2 py-0.5 rounded-full text-xs ${c.status === 'active'
-                                                        ? 'bg-emerald-100 text-emerald-800'
-                                                        : 'bg-rose-100 text-rose-800'
+                                                    ? 'bg-emerald-100 text-emerald-800'
+                                                    : 'bg-rose-100 text-rose-800'
                                                     }`}
                                             >
                                                 {c.status}

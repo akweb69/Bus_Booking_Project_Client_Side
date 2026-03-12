@@ -9,8 +9,8 @@ import {
     Trash2,
     Loader2,
     CheckCircle2,
-    XCircle,
-    X
+    ArrowRight,
+    Hash,
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import AdminHeader from './AdminHeader';
@@ -22,16 +22,16 @@ const AddRoute = () => {
     const [routes, setRoutes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
-        routeName: '',
-        routeCode: '',
-        boardingPoints: '',
+        route_name: '',
+        from_location: '',
+        to_location: '',
+        route_id_num: '',
     });
-    const [boardingPointsArray, setBoardingPointsArray] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const { routeRefetch } = useAllRoute();
 
-    // ── Fetch all routes ────────────────────────────────────────
+    // ── Fetch all routes ──────────────────────────────────────────
     const fetchRoutes = async () => {
         try {
             setLoading(true);
@@ -51,16 +51,7 @@ const AddRoute = () => {
         fetchRoutes();
     }, []);
 
-    // ── Update boarding points preview when input changes ──────
-    useEffect(() => {
-        const points = formData.boardingPoints
-            .split(',')
-            .map(p => p.trim())
-            .filter(p => p);
-        setBoardingPointsArray(points);
-    }, [formData.boardingPoints]);
-
-    // ── Form handlers ───────────────────────────────────────────
+    // ── Form handlers ─────────────────────────────────────────────
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -68,43 +59,35 @@ const AddRoute = () => {
 
     const resetForm = () => {
         setFormData({
-            routeName: '',
-            routeCode: '',
-            boardingPoints: '',
+            route_name: '',
+            from_location: '',
+            to_location: '',
+            route_id_num: '',
         });
-        setBoardingPointsArray([]);
         setEditingId(null);
     };
 
-    // ── Remove individual boarding point ────────────────────────
-    const removeBoardingPoint = (indexToRemove) => {
-        const updatedPoints = boardingPointsArray.filter((_, index) => index !== indexToRemove);
-        setFormData(prev => ({
-            ...prev,
-            boardingPoints: updatedPoints.join(', ')
-        }));
-    };
-
-    // ── Submit (Create or Update) ───────────────────────────────
+    // ── Submit (Create or Update) ─────────────────────────────────
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.routeName.trim() || !formData.routeCode.trim()) {
-            toast.error('Route Name and Code are required');
-            return;
-        }
-
-        if (boardingPointsArray.length === 0) {
-            toast.error('Please add at least one boarding point');
+        if (
+            !formData.route_name.trim() ||
+            !formData.from_location.trim() ||
+            !formData.to_location.trim() ||
+            !formData.route_id_num.trim()
+        ) {
+            toast.error('All fields are required');
             return;
         }
 
         setIsSubmitting(true);
 
         const payload = {
-            routeName: formData.routeName.trim(),
-            routeCode: formData.routeCode.trim(),
-            boardingPoints: boardingPointsArray, // Send as array
+            route_name: formData.route_name.trim(),
+            from_location: formData.from_location.trim(),
+            to_location: formData.to_location.trim(),
+            route_id_num: formData.route_id_num.trim(),
         };
 
         try {
@@ -112,16 +95,13 @@ const AddRoute = () => {
             let message;
 
             if (editingId) {
-                // Update
                 res = await fetch(`${API_BASE}/route/${editingId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
                 message = 'Route updated successfully!';
-
             } else {
-                // Create
                 res = await fetch(`${API_BASE}/routes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -147,30 +127,28 @@ const AddRoute = () => {
         }
     };
 
-    // ── Edit route ──────────────────────────────────────────────
+    // ── Edit route ────────────────────────────────────────────────
     const handleEdit = (route) => {
         setFormData({
-            routeName: route.routeName || '',
-            routeCode: route.routeCode || '',
-            boardingPoints: (route.boardingPoints || []).join(', '),
+            route_name: route.route_name || '',
+            from_location: route.from_location || '',
+            to_location: route.to_location || '',
+            route_id_num: route.route_id_num || '',
         });
         setEditingId(route._id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // ── Delete route ────────────────────────────────────────────
+    // ── Delete route ──────────────────────────────────────────────
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this route?')) return;
 
         try {
-            const res = await fetch(`${API_BASE}/route/${id}`, {
-                method: 'DELETE',
-            });
-
+            const res = await fetch(`${API_BASE}/route/${id}`, { method: 'DELETE' });
             if (!res.ok) throw new Error('Delete failed');
-
-            toast.success('Route deleted', { icon: <Trash2 className="text-red-500" /> });
+            toast.success('Route deleted');
             fetchRoutes();
+            routeRefetch();
         } catch (err) {
             console.error(err);
             toast.error('Failed to delete route');
@@ -193,9 +171,9 @@ const AddRoute = () => {
                 />
 
                 <div className="mt-4">
-                    {/* Form + Stats */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Left - Form */}
+
+                        {/* Left — Form */}
                         <motion.div
                             className="bg-white order-2 lg:order-1 dark:bg-gray-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-gray-700"
                             initial={{ scale: 0.98 }}
@@ -210,87 +188,103 @@ const AddRoute = () => {
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-5">
+
+                                {/* Route Name */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                        Route Name
+                                        Route Name <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        name="routeName"
-                                        value={formData.routeName}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Dhaka - Rajshahi Highway"
-                                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                                    />
+                                    <div className="relative">
+                                        <RouteIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            name="route_name"
+                                            value={formData.route_name}
+                                            onChange={handleChange}
+                                            placeholder="e.g. Dhaka - Rajshahi Express"
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                        />
+                                    </div>
                                 </div>
 
-
+                                {/* Route ID Number */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                        Route Code
+                                        Route ID Number <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        name="routeCode"
-                                        value={formData.routeCode}
-                                        onChange={handleChange}
-                                        placeholder="e.g. DH-RJ-01"
-                                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                                    />
+                                    <div className="relative">
+                                        <Hash className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            name="route_id_num"
+                                            value={formData.route_id_num}
+                                            onChange={handleChange}
+                                            placeholder="e.g. RT-1001"
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                        />
+                                    </div>
                                 </div>
 
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                        Boarding Points (comma separated)
-                                    </label>
-                                    <textarea
-                                        name="boardingPoints"
-                                        value={formData.boardingPoints}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Gabtoli, Savar, Nabinagar, Rajshahi Bus Terminal"
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                                    />
-
-                                    {/* Boarding Points Preview */}
-                                    {boardingPointsArray.length > 0 && (
-                                        <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <MapPin className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    Preview ({boardingPointsArray.length} points)
-                                                </span>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <AnimatePresence>
-                                                    {boardingPointsArray.map((point, index) => (
-                                                        <motion.div
-                                                            key={index}
-                                                            initial={{ opacity: 0, scale: 0.8 }}
-                                                            animate={{ opacity: 1, scale: 1 }}
-                                                            exit={{ opacity: 0, scale: 0.8 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium"
-                                                        >
-                                                            <MapPin className="h-3.5 w-3.5" />
-                                                            <span>{point}</span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeBoardingPoint(index)}
-                                                                className="ml-1 hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition"
-                                                            >
-                                                                <X className="h-3.5 w-3.5" />
-                                                            </button>
-                                                        </motion.div>
-                                                    ))}
-                                                </AnimatePresence>
-                                            </div>
+                                {/* From & To — side by side */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {/* From Location */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                            From Location <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
+                                            <input
+                                                type="text"
+                                                name="from_location"
+                                                value={formData.from_location}
+                                                onChange={handleChange}
+                                                placeholder="e.g. Dhaka"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            />
                                         </div>
-                                    )}
+                                    </div>
+
+                                    {/* To Location */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                            To Location <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-500" />
+                                            <input
+                                                type="text"
+                                                name="to_location"
+                                                value={formData.to_location}
+                                                onChange={handleChange}
+                                                placeholder="e.g. Rajshahi"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-4 pt-4">
+                                {/* Route Preview */}
+                                {(formData.from_location || formData.to_location) && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -6 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex items-center gap-3 px-4 py-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg"
+                                    >
+                                        <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {formData.from_location || '—'}
+                                        </span>
+                                        <ArrowRight className="h-4 w-4 text-indigo-400 shrink-0" />
+                                        <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {formData.to_location || '—'}
+                                        </span>
+                                    </motion.div>
+                                )}
+
+                                {/* Buttons */}
+                                <div className="flex gap-4 pt-2">
                                     <motion.button
                                         type="submit"
                                         disabled={isSubmitting}
@@ -299,7 +293,7 @@ const AddRoute = () => {
                                         className={`
                                             flex-1 py-3 px-6 rounded-lg font-semibold text-white flex items-center justify-center gap-2 shadow-md transition-all
                                             ${isSubmitting
-                                                ? 'bg-gray-500 cursor-not-allowed'
+                                                ? 'bg-gray-400 cursor-not-allowed'
                                                 : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
                                             }
                                         `}
@@ -332,8 +326,9 @@ const AddRoute = () => {
                             </form>
                         </motion.div>
 
-                        {/* Right - Stats + List */}
+                        {/* Right — Stats + List */}
                         <div className="space-y-6 order-1 lg:order-2">
+
                             {/* Total count card */}
                             <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-gray-700 text-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Available Routes</p>
@@ -342,7 +337,7 @@ const AddRoute = () => {
                                 </p>
                             </div>
 
-                            {/* Quick list preview */}
+                            {/* Routes list */}
                             <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                                 <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                     <h3 className="font-semibold text-gray-800 dark:text-gray-100">Recent Routes</h3>
@@ -357,42 +352,46 @@ const AddRoute = () => {
                                         <div className="p-6 text-center text-gray-500">No routes yet</div>
                                     ) : (
                                         routes.map(route => (
-                                            <div key={route._id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                                                            {route.routeName}
-                                                        </p>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                                            {route.routeCode}
-                                                        </p>
-                                                        {route.boardingPoints && route.boardingPoints.length > 0 && (
-                                                            <div className="flex flex-wrap gap-1.5 mt-2">
-                                                                {route.boardingPoints.map((point, idx) => (
-                                                                    <span
-                                                                        key={idx}
-                                                                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs"
-                                                                    >
-                                                                        <MapPin className="h-3 w-3" />
-                                                                        {point}
-                                                                    </span>
-                                                                ))}
+                                            <div
+                                                key={route._id}
+                                                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                                            >
+                                                <div className="flex justify-between items-start gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        {/* Route Name + ID */}
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                                                {route.route_name}
+                                                            </p>
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded text-xs font-mono">
+                                                                <Hash className="h-3 w-3" />
+                                                                {route.route_id_num}
+                                                            </span>
+                                                        </div>
 
-                                                            </div>
-                                                        )}
+                                                        {/* From → To */}
+                                                        <div className="flex items-center gap-2 mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+                                                            <MapPin className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                                            <span>{route.from_location}</span>
+                                                            <ArrowRight className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                                                            <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                                                            <span>{route.to_location}</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex gap-2 ml-4">
+
+                                                    {/* Actions */}
+                                                    <div className="flex gap-1 shrink-0">
                                                         <button
                                                             onClick={() => handleEdit(route)}
                                                             className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition"
                                                         >
-                                                            <Edit size={18} />
+                                                            <Edit size={17} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(route._id)}
                                                             className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition"
                                                         >
-                                                            <Trash2 size={18} />
+                                                            <Trash2 size={17} />
                                                         </button>
                                                     </div>
                                                 </div>

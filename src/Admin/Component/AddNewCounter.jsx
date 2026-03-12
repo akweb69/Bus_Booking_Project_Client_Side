@@ -278,8 +278,8 @@ const AddNewCounter = () => {
                                     >
                                         <option value="">Select route...</option>
                                         {allRoutes?.map((r) => (
-                                            <option key={r.routeName} value={r.routeName}>
-                                                {r.routeName} — {r.routeCode}
+                                            <option key={r.route_name} value={r.route_name}>
+                                                {r.route_name} — {r.route_id_num}
                                             </option>
                                         ))}
                                     </select>
